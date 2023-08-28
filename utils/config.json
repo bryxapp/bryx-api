@@ -1,0 +1,6 @@
+{
+    "DB": {
+        "accountEndpoint": "https://bryx.documents.azure.com:443/",
+        "databaseId": "bryxDB"
+    }
+}

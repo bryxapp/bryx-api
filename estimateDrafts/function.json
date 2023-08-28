@@ -1,14 +1,17 @@
 {
   "bindings": [
     {
-      "authLevel": "function",
+      "authLevel": "anonymous",
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
       "methods": [
         "get",
-        "post"
-      ]
+        "post",
+        "put",
+        "delete"
+      ],
+      "route": "estimateDrafts/{estimateDraftId?}"
     },
     {
       "type": "http",
@@ -16,5 +19,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/bryx-api/index.js"
+  "scriptFile": "../dist/estimateDrafts/index.js"
 }
