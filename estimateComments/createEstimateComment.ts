@@ -30,8 +30,11 @@ const createEstimateComment = async (context: Context, req: HttpRequest, decoded
     //Log the event 
     telemetryClient.trackEvent({
       name: "CreateEstimateComment",
-      properties: { userId: decodedToken.sub }
-    });
+      properties: {
+        userId: decodedToken.sub,
+        orgId: decodedToken.org_id,
+        api: "Estimates"
+      }    });
     // Log a custom metric
     telemetryClient.trackMetric({
       name: "EstimateCommentCreated",
@@ -49,7 +52,7 @@ const createEstimateComment = async (context: Context, req: HttpRequest, decoded
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Create estimate comment failed"), properties: { userId: decodedToken.sub }
+      exception: new Error("Create estimate comment failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
     });
     context.res = {
       status: 500,

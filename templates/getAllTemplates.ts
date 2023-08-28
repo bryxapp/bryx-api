@@ -49,8 +49,11 @@ const getAllTemplates = async (context: Context, req: HttpRequest, decodedToken:
     //Log the event 
     telemetryClient.trackEvent({
       name: "GetAllTemplates",
-      properties: { userId: decodedToken.sub }
-    });
+      properties: {
+        userId: decodedToken.sub,
+        orgId: decodedToken.org_id,
+        api: "Templates"
+      }    });
     // Log a custom metric
     telemetryClient.trackMetric({
       name: "TemplatesRetrieved",
@@ -63,7 +66,7 @@ const getAllTemplates = async (context: Context, req: HttpRequest, decodedToken:
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Get all templates failed"), properties: { userId: decodedToken.sub }
+      exception: new Error("Get all templates failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Templates" }
     });
     context.res = {
       status: 500,

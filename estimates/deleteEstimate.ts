@@ -34,8 +34,11 @@ const deleteEstimate = async (context: Context, req: HttpRequest, decodedToken: 
     //Log the event 
     telemetryClient.trackEvent({
       name: "DeleteEstimateById",
-      properties: { userId: decodedToken.sub }
-    });
+      properties: {
+        userId: decodedToken.sub,
+        orgId: decodedToken.org_id,
+        api: "Estimates"
+      }    });
     // Log a custom metric
     telemetryClient.trackMetric({
       name: "EstimateDeleted",
@@ -49,7 +52,7 @@ const deleteEstimate = async (context: Context, req: HttpRequest, decodedToken: 
 
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Delete estimate by id failed"), properties: { userId: decodedToken.sub }
+      exception: new Error("Delete estimate by id failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
     });
     context.res = {
       status: 500,

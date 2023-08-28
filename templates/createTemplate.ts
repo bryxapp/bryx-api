@@ -31,7 +31,11 @@ const createTemplate = async (context: Context, req: HttpRequest, decodedToken: 
     //Log the event 
     telemetryClient.trackEvent({
       name: "CreateTemplate",
-      properties: { userId: decodedToken.sub, templateId: createdTemplate.id }
+      properties: {
+         userId: decodedToken.sub,
+          templateId: createdTemplate.id,
+          api: "Templates",
+          orgId: decodedToken.org_id }
     });
     // Log a custom metric
     telemetryClient.trackMetric({
@@ -50,7 +54,7 @@ const createTemplate = async (context: Context, req: HttpRequest, decodedToken: 
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Template creation failed"), properties: { userId: decodedToken.sub, templateId: req.params.templateId }
+      exception: new Error("Template creation failed"), properties: { userId: decodedToken.sub, templateId: req.params.templateId, api: "Templates", orgId: decodedToken.org_id }
     });
     context.res = {
       status: 500,

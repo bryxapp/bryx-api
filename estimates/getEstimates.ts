@@ -69,8 +69,11 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
     //Log the event 
     telemetryClient.trackEvent({
       name: "GetAllEstimates",
-      properties: { userId: decodedToken.sub }
-    });
+      properties: {
+        userId: decodedToken.sub,
+        orgId: decodedToken.org_id,
+        api: "Estimates"
+      }    });
     // Log a custom metric
     telemetryClient.trackMetric({
       name: "EstimatesRetrieved",
@@ -83,7 +86,7 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Get all estimates failed"), properties: { userId: decodedToken.sub }
+      exception: new Error("Get all estimates failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
     });
     context.res = {
       status: 500,

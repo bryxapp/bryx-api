@@ -34,8 +34,11 @@ const deleteImage = async (context: Context, req: HttpRequest, decodedToken: Aut
         //Log the event 
         telemetryClient.trackEvent({
             name: "DeleteUserImage",
-            properties: { userId: decodedToken.sub }
-        });
+            properties: {
+        userId: decodedToken.sub,
+        orgId: decodedToken.org_id,
+        api: "Images"
+      }        });
         // Log a custom metric
         telemetryClient.trackMetric({
             name: "UserImageDeleted",
@@ -50,7 +53,7 @@ const deleteImage = async (context: Context, req: HttpRequest, decodedToken: Aut
 
     } catch (error) {
         appInsights.defaultClient.trackException({
-            exception: new Error("Delete user image failed"), properties: { userId: decodedToken.sub }
+            exception: new Error("Delete user image failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Images" }
         });
         context.res = {
             status: 500,

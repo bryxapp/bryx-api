@@ -27,8 +27,11 @@ const deleteEstimateComment = async (context: Context, req: HttpRequest, decoded
     //Log the event 
     telemetryClient.trackEvent({
       name: "DeleteEstimateCommentById",
-      properties: { userId: decodedToken.sub }
-    });
+      properties: {
+        userId: decodedToken.sub,
+        orgId: decodedToken.org_id,
+        api: "Estimates"
+      }    });
     // Log a custom metric
     telemetryClient.trackMetric({
       name: "EstimateCommentDeleted",
@@ -42,7 +45,7 @@ const deleteEstimateComment = async (context: Context, req: HttpRequest, decoded
 
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Delete estimate comment by id failed"), properties: { userId: decodedToken.sub }
+      exception: new Error("Delete estimate comment by id failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
     });
     context.res = {
       status: 500,

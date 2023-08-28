@@ -26,8 +26,11 @@ const getEstimateById = async (context: Context, req: HttpRequest, decodedToken:
     //Log the event 
     telemetryClient.trackEvent({
       name: "GetEstimateById",
-      properties: { userId: decodedToken.sub }
-    });
+      properties: {
+        userId: decodedToken.sub,
+        orgId: decodedToken.org_id,
+        api: "Estimates"
+      }    });
     // Log a custom metric
     telemetryClient.trackMetric({
       name: "EstimateRetrieved",
@@ -48,7 +51,7 @@ const getEstimateById = async (context: Context, req: HttpRequest, decodedToken:
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Get estimate by id failed"), properties: { userId: decodedToken.sub }
+      exception: new Error("Get estimate by id failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
     });
     context.res = {
       status: 500,

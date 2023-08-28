@@ -34,8 +34,11 @@ const getUserImageById = async (context: Context, req: HttpRequest, decodedToken
         //Log the event 
         telemetryClient.trackEvent({
             name: "GetUserImageById",
-            properties: { userId: decodedToken.sub }
-        });
+            properties: {
+        userId: decodedToken.sub,
+        orgId: decodedToken.org_id,
+        api: "Images"
+      }        });
         // Log a custom metric
         telemetryClient.trackMetric({
             name: "UserImageRetrieved",
@@ -49,7 +52,7 @@ const getUserImageById = async (context: Context, req: HttpRequest, decodedToken
         };
     } catch (error) {
         appInsights.defaultClient.trackException({
-            exception: new Error("Get user image by ID failed"), properties: { userId: decodedToken.sub }
+            exception: new Error("Get user image by ID failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Images" }
         });
         context.res = {
             status: 500,

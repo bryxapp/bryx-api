@@ -51,8 +51,11 @@ const getEstimateDrafts = async (context: Context, req: HttpRequest, decodedToke
     //Log the event 
     telemetryClient.trackEvent({
       name: "GetAllEstimateDrafts",
-      properties: { userId: decodedToken.sub }
-    });
+      properties: {
+        userId: decodedToken.sub,
+        orgId: decodedToken.org_id,
+        api: "Estimates"
+      }    });
     // Log a custom metric
     telemetryClient.trackMetric({
       name: "TemplatesRetrieved",
@@ -65,7 +68,7 @@ const getEstimateDrafts = async (context: Context, req: HttpRequest, decodedToke
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Get all estimate drafts failed"), properties: { userId: decodedToken.sub }
+      exception: new Error("Get all estimate drafts failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
     });
     context.res = {
       status: 500,

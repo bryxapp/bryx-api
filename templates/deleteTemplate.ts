@@ -24,7 +24,8 @@ const deleteTemplate = async (context: Context, req: HttpRequest, decodedToken: 
       name: "DeleteTemplate",
       properties: {
         userId: decodedToken.sub,
-        templateId: templateId
+        templateId: templateId,
+        api: "Templates",
       }
     });
     // Log a custom metric
@@ -46,7 +47,7 @@ const deleteTemplate = async (context: Context, req: HttpRequest, decodedToken: 
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Template deletion failed"), properties: { userId: decodedToken.sub, templateId: req.params.templateId }
+      exception: new Error("Template deletion failed"), properties: { userId: decodedToken.sub, templateId: req.params.templateId, api: "Templates" }
     });
 
     context.res = {

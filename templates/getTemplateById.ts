@@ -33,7 +33,7 @@ const getTemplateById = async (context: Context, req: HttpRequest, decodedToken:
     //Log the event 
     telemetryClient.trackEvent({
       name: "GetTemplateById",
-      properties: { userId: decodedToken.sub, templateId: templateId }
+      properties: { userId: decodedToken.sub, templateId: templateId, api: "Templates" }
     });
     // Log a custom metric
     telemetryClient.trackMetric({
@@ -48,7 +48,7 @@ const getTemplateById = async (context: Context, req: HttpRequest, decodedToken:
   } catch (error) {
     appInsights.defaultClient.trackException({
       exception: new Error("Get template by id failed"), properties: {
-        userId: decodedToken.sub, templateId: req.params.templateId
+        userId: decodedToken.sub, templateId: req.params.templateId, api: "Templates"
       }
     });
     context.res = {

@@ -50,7 +50,7 @@ const updateTemplate = async (context: Context, req: HttpRequest,decodedToken:Au
         //Log the event 
         telemetryClient.trackEvent({
           name: "UpdateTemplate",
-          properties: { userId: decodedToken.sub, templateId: templateId }
+          properties: { userId: decodedToken.sub, templateId: templateId, api: "Templates", orgId: decodedToken.org_id }
         });
         // Log a custom metric
         telemetryClient.trackMetric({
@@ -67,6 +67,9 @@ const updateTemplate = async (context: Context, req: HttpRequest,decodedToken:Au
       }
     };
   } catch (error) {
+    appInsights.defaultClient.trackException({
+      exception: new Error("Template update failed"), properties: { userId: decodedToken.sub, templateId: req.params.templateId, api: "Templates", orgId: decodedToken.org_id }
+    });
     context.res = {
       status: 500,
       body: error.message

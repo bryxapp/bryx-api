@@ -57,8 +57,11 @@ const updateEstimateDraft = async (context: Context, req: HttpRequest, decodedTo
         //Log the event 
         telemetryClient.trackEvent({
             name: "UpdateEstimateDraft",
-            properties: { userId: decodedToken.sub }
-        });
+            properties: {
+        userId: decodedToken.sub,
+        orgId: decodedToken.org_id,
+        api: "Estimates"
+      }        });
         // Log a custom metric
         telemetryClient.trackMetric({
             name: "EstimateDraftUpdated",
@@ -72,7 +75,7 @@ const updateEstimateDraft = async (context: Context, req: HttpRequest, decodedTo
         };
     } catch (error) {
         appInsights.defaultClient.trackException({
-            exception: new Error("Update estimate draft failed"), properties: { userId: decodedToken.sub }
+            exception: new Error("Update estimate draft failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
         });
         context.res = {
             status: 500,

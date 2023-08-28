@@ -50,8 +50,11 @@ const createUserImage = async (context: Context, req: HttpRequest, decodedToken:
         //Log the event
         telemetryClient.trackEvent({
             name: "NewUserImage",
-            properties: { userId: decodedToken.sub }
-        });
+            properties: {
+        userId: decodedToken.sub,
+        orgId: decodedToken.org_id,
+        api: "Images"
+      }        });
         // Log a custom metric
         telemetryClient.trackMetric({
             name: "UserImageCreated",
@@ -65,7 +68,7 @@ const createUserImage = async (context: Context, req: HttpRequest, decodedToken:
         };
     } catch (err) {
         appInsights.defaultClient.trackException({
-            exception: new Error("New user image failed"), properties: { userId: decodedToken.sub }
+            exception: new Error("New user image failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Images" }
         });
         context.res = {
             status: 500,

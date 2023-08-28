@@ -20,7 +20,7 @@ const createEstimate = async (context: Context, req: HttpRequest, decodedToken: 
       return;
     }
     newEstimate.userId = decodedToken.sub;
-    newEstimate.orgId = decodedToken.org_id? decodedToken.org_id : null;
+    newEstimate.orgId = decodedToken.org_id ? decodedToken.org_id : null;
 
     const estimateHeight = newEstimate.estimatePDFHeight ? newEstimate.estimatePDFHeight : 792;
     const estimateWidth = newEstimate.estimatePDFWidth ? newEstimate.estimatePDFWidth : 612;
@@ -47,7 +47,11 @@ const createEstimate = async (context: Context, req: HttpRequest, decodedToken: 
     //Log the event 
     telemetryClient.trackEvent({
       name: "CreateEstimate",
-      properties: { userId: decodedToken.sub }
+      properties: {
+        userId: decodedToken.sub,
+        orgId: decodedToken.org_id,
+        api: "Estimates"
+      }
     });
     // Log a custom metric
     telemetryClient.trackMetric({
@@ -66,7 +70,7 @@ const createEstimate = async (context: Context, req: HttpRequest, decodedToken: 
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Create estimate failed"), properties: { userId: decodedToken.sub }
+      exception: new Error("Create estimate failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
     });
     context.res = {
       status: 500,
