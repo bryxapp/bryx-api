@@ -6,7 +6,7 @@ import updateTemplate from "./updateTemplate";
 import deleteTemplate from "./deleteTemplate";
 import { verifyToken } from "../utils/security";
 import * as dotenv from 'dotenv';
-import { AuthType } from "../utils/types/authType";
+import { AuthType } from "../utils/Types/authType";
 let appInsights = require('applicationinsights');
 
 dotenv.config();
