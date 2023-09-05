@@ -3,32 +3,20 @@ import { getDatabaseContainer } from "../utils/database";
 import { AuthType } from "../utils/Types/authType";
 let appInsights = require('applicationinsights');
 
-const getEstimates = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const getTemplatesUsed = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
   try {
     const userId = decodedToken.sub;
     const orgId = decodedToken.org_id ? decodedToken.org_id : null;
-    const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 10;
-    const pageNumber = req.query.pageNumber ? parseInt(req.query.pageNumber) : 1;
-    const skipCount = (pageNumber - 1) * pageSize;
-
-    const searchTerm = req.query.searchTerm ? req.query.searchTerm : '';
-    const templateId = req.query.templateId ? req.query.templateId : '';
 
     // Get the database
     const container = await getDatabaseContainer("Estimates");
 
     // Build query string
-    let queryString = "SELECT * FROM c WHERE c.orgId = @orgId";
-    if(!orgId) {
+    let queryString = "SELECT DISTINCT c.templateId, c.templateFriendlyName FROM c WHERE c.orgId = @orgId";
+    if (!orgId) {
       queryString += " AND c.userId = @userId";
     }
-    if (searchTerm !== '') {
-      queryString += " AND CONTAINS(c.estimateName, @searchTerm)";
-    }
-    if (templateId !== '') {
-      queryString += " AND c.templateId = @templateId";
-    }
-    queryString += " ORDER BY c._ts DESC OFFSET @skipCount LIMIT @pageSize";
+    queryString += " ORDER BY c._ts DESC";
 
     // Get estimates with paging
     const querySpec = {
@@ -41,22 +29,6 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
         {
           name: "@userId",
           value: userId
-        },
-        {
-          name: "@skipCount",
-          value: skipCount
-        },
-        {
-          name: "@pageSize",
-          value: pageSize
-        },
-        {
-          name: "@searchTerm",
-          value: searchTerm
-        },
-        {
-          name: "@templateId",
-          value: templateId
         }
       ]
     };
@@ -68,7 +40,7 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
     const telemetryClient = appInsights.defaultClient;
     //Log the event 
     telemetryClient.trackEvent({
-      name: "GetAllEstimates",
+      name: "GetTemplatesUsed",
       properties: {
         userId: decodedToken.sub,
         orgId: decodedToken.org_id,
@@ -77,7 +49,7 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
     });
     // Log a custom metric
     telemetryClient.trackMetric({
-      name: "EstimatesRetrieved",
+      name: "TemplatesUsedRetrieved",
       value: 1
     });
 
@@ -87,7 +59,7 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Get all estimates failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
+      exception: new Error("Get templates used failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
     });
     context.res = {
       status: 500,
@@ -96,4 +68,4 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
   }
 };
 
-export default getEstimates;
+export default getTemplatesUsed;
