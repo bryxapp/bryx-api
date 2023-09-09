@@ -1,4 +1,7 @@
-name: Build and Deploy bryx-api
+# Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy Node.js project to Azure Function App - bryx-api
 
 on:
   push:
@@ -7,8 +10,8 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'
-  NODE_VERSION: '18.x' 
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
+  NODE_VERSION: '18.x' # set this to the node version to use (supports 8.x, 10.x, 12.x)
 
 jobs:
   build-and-deploy:
@@ -28,6 +31,7 @@ jobs:
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
           npm install
           npm run build --if-present
+          npm run test --if-present
           popd
 
       - name: 'Run Azure Functions Action'
@@ -37,4 +41,4 @@ jobs:
           app-name: 'bryx-api'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4BE86AD0D4C2438DA10F22A20ACFBE91 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C09CA0A9CB584C1BBBA90D4507824D6F }}
