@@ -1,7 +1,8 @@
 {
   "name": "bryx-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Bryx API",
+  "license": "NA",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
