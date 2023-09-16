@@ -1,8 +1,10 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { uploadImage } from "../utils/blobstorage";
 import { getDatabaseContainer } from "../utils/database";
+import { checkMaxCounts, getMaxUserImages } from "../utils/checkMaxCount";
 import * as multipart from "parse-multipart";
-import { AuthType } from "../utils/Types/authType";
+import { AuthType } from "../utils/security";
+
 let appInsights = require("applicationinsights");
 
 const createUserImage = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
@@ -19,6 +21,18 @@ const createUserImage = async (context: Context, req: HttpRequest, decodedToken:
             status: 400,
             body: "Invalid request, missing body"
         };
+        return;
+    }
+
+    // Validate the user has not reached the maximum number of images
+    if (checkMaxCounts(decodedToken.sub, decodedToken.org_id, "UserImages", getMaxUserImages)) {
+        context.res = {
+            status: 400,
+            body: "You have reached the maximum number of images."
+        };
+        appInsights.defaultClient.trackException({
+            exception: new Error("Max Images Reached"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Images" }
+        });
         return;
     }
 

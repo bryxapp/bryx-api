@@ -4,7 +4,8 @@ import getOrgById from "./getOrgById";
 import updateOrg from "./updateOrg";
 import { verifyToken } from "../utils/security";
 import * as dotenv from 'dotenv';
-import { AuthType } from "../utils/Types/authType";
+import { AuthType } from "../utils/security";
+
 let appInsights = require('applicationinsights');
 
 dotenv.config();

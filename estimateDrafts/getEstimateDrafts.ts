@@ -1,6 +1,7 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/Types/authType";
+import { AuthType } from "../utils/security";
+import { checkMaxCounts, getMaxEstimateDrafts } from "../utils/checkMaxCount";
 let appInsights = require('applicationinsights');
 
 const getEstimateDrafts = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
@@ -55,16 +56,21 @@ const getEstimateDrafts = async (context: Context, req: HttpRequest, decodedToke
         userId: decodedToken.sub,
         orgId: decodedToken.org_id,
         api: "Estimates"
-      }    });
+      }
+    });
     // Log a custom metric
     telemetryClient.trackMetric({
-      name: "TemplatesRetrieved",
+      name: "EstimateDraftsRetrieved",
       value: 1
     });
+    const maxDraftsReached = checkMaxCounts(decodedToken.sub, decodedToken.org_id, "EstimateDrafts", getMaxEstimateDrafts);
 
     context.res = {
       status: 200,
-      body: fetchedEstimateDrafts
+      body: {
+        fetchedEstimateDrafts: fetchedEstimateDrafts,
+        maxDraftsReached: maxDraftsReached
+      }
     };
   } catch (error) {
     appInsights.defaultClient.trackException({

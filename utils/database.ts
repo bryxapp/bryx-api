@@ -1,7 +1,9 @@
 import { CosmosClient } from "@azure/cosmos";
 import config from './config.json';
 
-export const getDatabaseContainer = async (containerId:string) => {
+export type ContainerName = "Estimates"| "EstimateDrafts" | "EstimateComments" | "Templates" | "Users"| "Organizations" | "UserImages";
+
+export const getDatabaseContainer = async (containerName:ContainerName) => {
     //Connect to Cosmos DB
     const endpoint = config.DB.accountEndpoint;
     const key = process.env.COSMOS_DB_KEY;
@@ -10,7 +12,7 @@ export const getDatabaseContainer = async (containerId:string) => {
     //Get the database and container
     const databaseId = config.DB.databaseId;
     const database = client.database(databaseId);
-    const container = database.container(containerId);
+    const container = database.container(containerName);
 
     return container;
 };

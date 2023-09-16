@@ -1,5 +1,11 @@
 import * as jwt from 'jsonwebtoken';
-import { AuthType } from './Types/authType';
+
+///Create an interface type for authentication object
+export interface AuthType {
+    sub: string;
+    org_id?: string;
+}
+
 
 export const verifyToken = (tokenString: string) => {
     try {

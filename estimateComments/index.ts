@@ -3,7 +3,8 @@ import createEstimateComment from "./createEstimateComment";
 import getEstimateComments from "./getEstimateComments";
 import deleteEstimateComment from "./deleteEstimateComment";
 import { verifyToken } from "../utils/security";
-import { AuthType } from "../utils/Types/authType";
+import { AuthType } from "../utils/security";
+
 import * as dotenv from 'dotenv';
 let appInsights = require('applicationinsights');
 

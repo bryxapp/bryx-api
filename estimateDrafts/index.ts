@@ -5,7 +5,8 @@ import getEstimateDraftById from "./getEstimateDraftById";
 import updateEstimateDraft from "./updateEstimateDraft";
 import deleteEstimateDraft from "./deleteEstimateDraft";
 import { verifyToken } from "../utils/security";
-import { AuthType } from "../utils/Types/authType";
+import { AuthType } from "../utils/security";
+
 let appInsights = require('applicationinsights');
 import * as dotenv from 'dotenv';
 

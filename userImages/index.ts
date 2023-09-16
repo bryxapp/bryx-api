@@ -5,7 +5,8 @@ import deleteImage from "./deleteUserImage";
 import * as dotenv from "dotenv";
 import getUserImageById from "./getUserImageById";
 import { verifyToken } from "../utils/security";
-import { AuthType } from "../utils/Types/authType";
+import { AuthType } from "../utils/security";
+
 let appInsights = require("applicationinsights");
 
 dotenv.config();

@@ -1,6 +1,9 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/Types/authType";
+import { AuthType } from "../utils/security";
+
+import { checkMaxCounts, getMaxTemplates } from "../utils/checkMaxCount";
+import { get } from "http";
 let appInsights = require('applicationinsights');
 
 const getAllTemplates = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
@@ -60,9 +63,14 @@ const getAllTemplates = async (context: Context, req: HttpRequest, decodedToken:
       value: 1
     });
 
+    const maxTemplatesReached = checkMaxCounts(decodedToken.sub, decodedToken.org_id, "Templates", getMaxTemplates);
+
     context.res = {
       status: 200,
-      body: allTemplates
+      body: {
+        "templates": allTemplates,
+        "maxTemplatesReached": maxTemplatesReached
+      }
     };
   } catch (error) {
     appInsights.defaultClient.trackException({

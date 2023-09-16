@@ -1,6 +1,8 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/Types/authType";
+import { AuthType } from "../utils/security";
+
+import { checkMaxCounts, getMaxEstimates } from "../utils/checkMaxCount";
 let appInsights = require('applicationinsights');
 
 const getEstimates = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
@@ -19,7 +21,7 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
 
     // Build query string
     let queryString = "SELECT * FROM c WHERE c.orgId = @orgId";
-    if(!orgId) {
+    if (!orgId) {
       queryString += " AND c.userId = @userId";
     }
     if (searchTerm !== '') {
@@ -63,6 +65,7 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
 
     // Fetch the estimates
     const { resources: fetchedEstimates } = await container.items.query(querySpec).fetchAll();
+    const maxEstimatesReached = checkMaxCounts(decodedToken.sub, decodedToken.org_id, "Estimates", getMaxEstimates);
 
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;
@@ -83,7 +86,10 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
 
     context.res = {
       status: 200,
-      body: fetchedEstimates
+      body: {
+        estimates: fetchedEstimates,
+        maxEstimatesReached: maxEstimatesReached
+      }
     };
   } catch (error) {
     appInsights.defaultClient.trackException({

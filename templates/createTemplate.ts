@@ -1,11 +1,25 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/Types/authType";
+import { AuthType } from "../utils/security";
+
+import { checkMaxCounts, getMaxTemplates } from "../utils/checkMaxCount";
 let appInsights = require('applicationinsights');
 
 
 const createTemplate = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
   try {
+    // Check if the user has reached the maximum number of templates
+    if (checkMaxCounts(decodedToken.sub, decodedToken.org_id, "Templates", getMaxTemplates)) {
+      context.res = {
+        status: 400,
+        body: "You have reached the maximum number of templates. Please upgrade your subscription to create more templates."
+      };
+      appInsights.defaultClient.trackException({
+        exception: new Error("Max Templates Reached"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Templates" }
+      });
+      return;
+    }
+
     const newTemplate = req.body;
     newTemplate.userId = decodedToken.sub;
     newTemplate.orgId = decodedToken.org_id? decodedToken.org_id : null;

@@ -1,7 +1,8 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
 import { deleteImageBlob } from "../utils/blobstorage";
-import { AuthType } from "../utils/Types/authType";
+import { AuthType } from "../utils/security";
+
 let appInsights = require("applicationinsights");
 
 const deleteImage = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {

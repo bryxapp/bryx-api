@@ -5,7 +5,8 @@ import getEstimateById from "./getEstimateById";
 import getTemplatesUsed from "./getTemplatesUsed";
 import deleteEstimate from "./deleteEstimate";
 import { verifyToken } from "../utils/security";
-import { AuthType } from "../utils/Types/authType";
+import { AuthType } from "../utils/security";
+
 import * as dotenv from 'dotenv';
 let appInsights = require('applicationinsights');
 

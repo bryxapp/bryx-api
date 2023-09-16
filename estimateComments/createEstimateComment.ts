@@ -1,6 +1,6 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from '../utils/Types/authType'
+import { AuthType } from "../utils/security";
 let appInsights = require('applicationinsights');
 
 

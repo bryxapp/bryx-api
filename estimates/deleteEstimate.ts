@@ -1,7 +1,8 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
 import { deletePdf } from "../utils/blobstorage";
-import { AuthType } from "../utils/Types/authType";
+import { AuthType } from "../utils/security";
+
 let appInsights = require('applicationinsights');
 
 const deleteEstimate = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {

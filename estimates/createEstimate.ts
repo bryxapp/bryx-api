@@ -2,16 +2,29 @@ import { Context, HttpRequest } from "@azure/functions";
 import { uploadPdf } from "../utils/blobstorage";
 import { getDatabaseContainer } from "../utils/database";
 import { createPDF } from "../utils/pdf";
-import { AuthType } from "../utils/Types/authType";
+import { AuthType } from "../utils/security";
+
+import { checkMaxCounts, getMaxEstimates } from "../utils/checkMaxCount";
 let appInsights = require('applicationinsights');
 
 
 const createEstimate = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
   try {
+
+    if (checkMaxCounts(decodedToken.sub, decodedToken.org_id, "Estimates", getMaxEstimates)) {
+      context.res = {
+        status: 400,
+        body: "You have reached the maximum number of estimates for your subscription. Please upgrade your subscription to create more estimates."
+      };
+      appInsights.defaultClient.trackException({
+        exception: new Error("Max Estimates Reached"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
+      });
+
+      return;
+    }
+
     const newEstimate = req.body;
-
     // Validate there is a body and the body contains fields user,templateId,estimateName, and estimateImgObj
-
     if (!newEstimate || !newEstimate.templateId || !newEstimate.estimateName || !newEstimate.estimateImgObj) {
       context.res = {
         status: 400,
@@ -19,6 +32,7 @@ const createEstimate = async (context: Context, req: HttpRequest, decodedToken: 
       };
       return;
     }
+
     newEstimate.userId = decodedToken.sub;
     newEstimate.orgId = decodedToken.org_id ? decodedToken.org_id : null;
 

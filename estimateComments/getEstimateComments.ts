@@ -1,6 +1,7 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/Types/authType";
+import { AuthType } from "../utils/security";
+
 let appInsights = require('applicationinsights');
 
 const getEstimateComments = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
