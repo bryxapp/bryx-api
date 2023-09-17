@@ -1,6 +1,7 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
 import { AuthType } from "../utils/security";
+import { checkMaxCounts, getMaxUserImages } from "../utils/checkMaxCount";
 
 let appInsights = require("applicationinsights");
 
@@ -50,9 +51,14 @@ const getUserImages = async (context: Context, req: HttpRequest, decodedToken: A
             value: 1
         });
 
+        const maxUserImagesReached = checkMaxCounts(decodedToken.sub, decodedToken.org_id, "UserImages", getMaxUserImages);
+
         context.res = {
             status: 200,
-            body: userImages
+            body: {
+                userImages: userImages,
+                maxUserImagesReached: maxUserImagesReached
+            }
         };
 
     } catch (error) {
