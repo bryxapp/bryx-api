@@ -10,7 +10,20 @@ const getOrgById = async (context: Context, req: HttpRequest, decodedToken: Auth
     // Get the database
     const container = await getDatabaseContainer("Organizations");
 
-    const { resource: org } = await container.item(orgId, undefined).read();
+    const querySpec = {
+      query: "SELECT * FROM c WHERE c.orgId = @orgId",
+      parameters: [
+        {
+          name: "@orgId",
+          value: orgId
+        }
+      ]
+    };
+
+    // Get the user
+    const { resources: org } = await container.items
+      .query(querySpec)
+      .fetchNext();
 
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;

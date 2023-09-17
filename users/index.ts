@@ -23,7 +23,6 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
   }
 
   if (req.method === "GET") {
-
     // Verify that the request is authenticated
     const token = req.headers.authorization;
     if (!token) {
@@ -44,7 +43,8 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
       return;
     }
 
-    getUserById(context, req, decodedToken);
+    await getUserById(context, req, decodedToken);
+    return;
   }
 
   context.res = {

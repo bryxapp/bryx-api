@@ -10,7 +10,20 @@ const getUserById = async (context: Context, req: HttpRequest, decodedToken: Aut
     // Get the database
     const container = await getDatabaseContainer("Users");
 
-    const { resource: user } = await container.item(userId, undefined).read();
+    const querySpec = {
+      query: "SELECT * FROM c WHERE c.userId = @userId",
+      parameters: [
+        {
+          name: "@userId",
+          value: userId
+        }
+      ]
+    };
+
+    // Get the user
+    const { resources: user } = await container.items
+      .query(querySpec)
+      .fetchNext();
 
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;
