@@ -21,9 +21,9 @@ const getUserById = async (context: Context, req: HttpRequest, decodedToken: Aut
     };
 
     // Get the user
-    const { resources: user } = await container.items
-      .query(querySpec)
-      .fetchNext();
+    const { resources: users } = await container.items
+      .query(querySpec).fetchAll();
+    const user = users[0];
 
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;
