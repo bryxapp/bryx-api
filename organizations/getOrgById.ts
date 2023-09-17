@@ -21,9 +21,10 @@ const getOrgById = async (context: Context, req: HttpRequest, decodedToken: Auth
     };
 
     // Get the user
-    const { resources: org } = await container.items
+    const { resources: orgs } = await container.items
       .query(querySpec)
-      .fetchNext();
+      .fetchAll();
+    const org = orgs[0];
 
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;
