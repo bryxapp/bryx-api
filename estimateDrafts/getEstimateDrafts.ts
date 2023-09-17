@@ -63,7 +63,7 @@ const getEstimateDrafts = async (context: Context, req: HttpRequest, decodedToke
       name: "EstimateDraftsRetrieved",
       value: 1
     });
-    const maxDraftsReached = checkMaxCounts(decodedToken.sub, decodedToken.org_id, "EstimateDrafts", getMaxEstimateDrafts);
+    const maxDraftsReached = await checkMaxCounts(decodedToken.sub, decodedToken.org_id, "EstimateDrafts", getMaxEstimateDrafts);
 
     context.res = {
       status: 200,

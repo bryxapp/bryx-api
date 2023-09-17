@@ -51,7 +51,7 @@ const getUserImages = async (context: Context, req: HttpRequest, decodedToken: A
             value: 1
         });
 
-        const maxUserImagesReached = checkMaxCounts(decodedToken.sub, decodedToken.org_id, "UserImages", getMaxUserImages);
+        const maxUserImagesReached = await checkMaxCounts(decodedToken.sub, decodedToken.org_id, "UserImages", getMaxUserImages);
 
         context.res = {
             status: 200,

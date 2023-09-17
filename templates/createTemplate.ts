@@ -9,7 +9,7 @@ let appInsights = require('applicationinsights');
 const createTemplate = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
   try {
     // Check if the user has reached the maximum number of templates
-    if (checkMaxCounts(decodedToken.sub, decodedToken.org_id, "Templates", getMaxTemplates)) {
+    if (await checkMaxCounts(decodedToken.sub, decodedToken.org_id, "Templates", getMaxTemplates)) {
       context.res = {
         status: 400,
         body: "You have reached the maximum number of templates. Please upgrade your subscription to create more templates."

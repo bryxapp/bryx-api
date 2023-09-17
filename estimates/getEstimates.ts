@@ -65,7 +65,7 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
 
     // Fetch the estimates
     const { resources: fetchedEstimates } = await container.items.query(querySpec).fetchAll();
-    const maxEstimatesReached = checkMaxCounts(decodedToken.sub, decodedToken.org_id, "Estimates", getMaxEstimates);
+    const maxEstimatesReached = await checkMaxCounts(decodedToken.sub, decodedToken.org_id, "Estimates", getMaxEstimates);
 
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;

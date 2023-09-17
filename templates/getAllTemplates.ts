@@ -63,7 +63,7 @@ const getAllTemplates = async (context: Context, req: HttpRequest, decodedToken:
       value: 1
     });
 
-    const maxTemplatesReached = checkMaxCounts(decodedToken.sub, decodedToken.org_id, "Templates", getMaxTemplates);
+    const maxTemplatesReached = await checkMaxCounts(decodedToken.sub, decodedToken.org_id, "Templates", getMaxTemplates);
 
     context.res = {
       status: 200,

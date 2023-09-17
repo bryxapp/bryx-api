@@ -11,7 +11,7 @@ let appInsights = require('applicationinsights');
 const createEstimate = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
   try {
 
-    if (checkMaxCounts(decodedToken.sub, decodedToken.org_id, "Estimates", getMaxEstimates)) {
+    if (await checkMaxCounts(decodedToken.sub, decodedToken.org_id, "Estimates", getMaxEstimates)) {
       context.res = {
         status: 400,
         body: "You have reached the maximum number of estimates for your subscription. Please upgrade your subscription to create more estimates."

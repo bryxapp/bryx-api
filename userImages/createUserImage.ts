@@ -25,7 +25,7 @@ const createUserImage = async (context: Context, req: HttpRequest, decodedToken:
     }
 
     // Validate the user has not reached the maximum number of images
-    if (checkMaxCounts(decodedToken.sub, decodedToken.org_id, "UserImages", getMaxUserImages)) {
+    if (await checkMaxCounts(decodedToken.sub, decodedToken.org_id, "UserImages", getMaxUserImages)) {
         context.res = {
             status: 400,
             body: "You have reached the maximum number of images."
