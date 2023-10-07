@@ -10,7 +10,6 @@ const updateEstimateDraft = async (context: Context, req: HttpRequest, decodedTo
         const estimateDraftId = req.params.estimateDraftId;
         const updatedEstimateDraftData = req.body;
 
-        // Validate the template ID and has fields frindlyName and user and canvasDesign
         if (!estimateDraftId) {
             context.res = {
                 status: 400,

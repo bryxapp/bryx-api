@@ -6,7 +6,6 @@ const updateOrg = async (context: Context, req: HttpRequest): Promise<void> => {
   try {
     const orgId = req.params.orgId;
     const updatedOrgData = req.body.org;
-    // Validate the template ID and has fields frindlyName and user and canvasDesign
     if (!orgId) {
       context.res = {
         status: 400,

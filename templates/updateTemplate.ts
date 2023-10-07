@@ -11,7 +11,7 @@ const updateTemplate = async (context: Context, req: HttpRequest,decodedToken:Au
     const userId = decodedToken.sub;
 
 
-    // Validate the template ID and has fields frindlyName and user and canvasDesign
+    // Validate the template ID and has fields frindlyName and and canvasDesign
     if (!templateId) {
       context.res = {
         status: 400,
@@ -20,10 +20,10 @@ const updateTemplate = async (context: Context, req: HttpRequest,decodedToken:Au
       return;
     }
 
-    if (!updatedTemplateData || !updatedTemplateData.friendlyName || !updatedTemplateData.user || !updatedTemplateData.canvasDesign) {
+    if (!updatedTemplateData || !updatedTemplateData.friendlyName || !updatedTemplateData.canvasDesign) {
       context.res = {
         status: 400,
-        body: "Template data is invalid. It must contain friendlyName, user and canvasDesign."
+        body: "Template data is invalid. It must contain friendlyName, and canvasDesign."
       };
       return;
     }
@@ -43,6 +43,7 @@ const updateTemplate = async (context: Context, req: HttpRequest,decodedToken:Au
     }
 
     updatedTemplateData.id = templateId;
+    updatedTemplateData.userId = userId;
     // Update the template in the database
     const { resource: updatedTemplate } = await container.item(templateId).replace(updatedTemplateData);
 
@@ -51,7 +52,7 @@ const updateTemplate = async (context: Context, req: HttpRequest,decodedToken:Au
         //Log the event 
         telemetryClient.trackEvent({
           name: "UpdateTemplate",
-          properties: { userId: decodedToken.sub, templateId: templateId, api: "Templates", orgId: decodedToken.org_id }
+          properties: { userId: userId, templateId: templateId, api: "Templates", orgId: decodedToken.org_id }
         });
         // Log a custom metric
         telemetryClient.trackMetric({
