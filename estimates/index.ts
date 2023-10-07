@@ -14,8 +14,6 @@ dotenv.config();
 appInsights.setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING).start();
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
-    // Action could be either 'templates' or an estimate id
-    const { action } = context.bindingData;
 
     // Determine the handler method based on the HTTP method and route
     let handler;
@@ -24,9 +22,9 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             handler = createEstimate;
             break;
         case 'GET':
-            if (action === 'templates') {
+            if (req.params.estimateId && req.params.estimateId === "templates") {
                 handler = getTemplatesUsed;
-            } else if (action) {
+            } else if (req.params.estimateId) {
                 handler = getEstimateById;
             } else {
                 handler = getEstimates;

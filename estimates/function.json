@@ -10,7 +10,7 @@
         "post",
         "delete"
       ],
-      "route": "estimates/{action?}/{estimateId?}"
+      "route": "estimates/{estimateId?}"
     },
     {
       "type": "http",
