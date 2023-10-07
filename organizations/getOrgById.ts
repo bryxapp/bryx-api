@@ -6,7 +6,7 @@ let appInsights = require('applicationinsights');
 
 const getOrgById = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
   try {
-    const orgId = decodedToken.org_id;
+    const orgId = decodedToken.org_id? decodedToken.org_id : null;
     // Get the database
     const container = await getDatabaseContainer("Organizations");
 

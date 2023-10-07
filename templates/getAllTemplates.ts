@@ -9,7 +9,7 @@ let appInsights = require('applicationinsights');
 const getAllTemplates = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
   try {
     const userId = decodedToken.sub;
-    const orgId = decodedToken.org_id;
+    const orgId = decodedToken.org_id? decodedToken.org_id : null;
     const container = await getDatabaseContainer("Templates");
 
     const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 10;
