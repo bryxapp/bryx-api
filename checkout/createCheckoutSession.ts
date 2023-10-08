@@ -41,7 +41,14 @@ const createCheckoutSession = async (context: Context, req: HttpRequest): Promis
       value: 1
     });
 
-    context.res.redirect(303, session.url);
+    context.res = {
+      status: 303,
+      headers: {
+        'Location': session.url
+      },
+      body: ""
+    };
+
   } catch (error) {
     appInsights.defaultClient.trackException({
       exception: new Error("Create checkout session failed"), properties: { body: req.body, api: "Checkout" }
