@@ -12,18 +12,16 @@ const createCheckoutSession = async (context: Context, req: HttpRequest): Promis
       };
       return;
     }
-    console.log(process.env.STRIPE_SECRET_KEY)
+
     const session = await stripe.checkout.sessions.create({
       line_items: [{
         price: req.body.priceId,
         quantity: 1,
       }],
       mode: 'subscription',
-      success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.origin}/canceled`,
-      automatic_tax: {
-        enabled: true
-      }
+      success_url: `${req.headers.origin}/?success=true`,
+      cancel_url: `${req.headers.origin}/?canceled=true`,
+      automatic_tax: {enabled: true},
     });
 
     // Create a new telemetry client
@@ -42,11 +40,8 @@ const createCheckoutSession = async (context: Context, req: HttpRequest): Promis
     });
 
     context.res = {
-      status: 303,
-      headers: {
-        'Location': session.url
-      },
-      body: ""
+      status: 200,
+      body: session
     };
 
   } catch (error) {
