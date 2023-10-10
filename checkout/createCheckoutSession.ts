@@ -5,7 +5,7 @@ const createCheckoutSession = async (context: Context, req: HttpRequest): Promis
   try {
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
     // Validate there is a body and the body contains fields priceId
-    if (!req.body || !req.body.priceId || req.body.userId) {
+    if (!req.body || !req.body.priceId) {
       context.res = {
         status: 400,
         body: "Please pass a valid priceId and userId in the request body"
