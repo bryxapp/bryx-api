@@ -20,8 +20,8 @@ const createCheckoutSession = async (context: Context, req: HttpRequest): Promis
       }],
       mode: 'subscription',
       automatic_tax: {enabled: true},
-      success_url: `${req.headers.origin}?success=true`,
-      cancel_url: `${req.headers.origin}?canceled=true`,
+      success_url: `${req.headers.origin}/checkout?success=true`,
+      cancel_url: `${req.headers.origin}/checkout?canceled=true`,
     });
 
     // Create a new telemetry client
