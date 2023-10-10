@@ -14,14 +14,14 @@ const createCheckoutSession = async (context: Context, req: HttpRequest): Promis
     }
 
     const session = await stripe.checkout.sessions.create({
-      ui_mode: 'embedded',
       line_items: [{
         price: req.body.priceId,
         quantity: 1,
       }],
       mode: 'subscription',
       automatic_tax: {enabled: true},
-      return_url: `${req.headers.origin}/return?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${req.headers.origin}?success=true`,
+      cancel_url: `${req.headers.origin}?canceled=true`,
     });
 
     // Create a new telemetry client
