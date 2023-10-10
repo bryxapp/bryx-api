@@ -5,23 +5,23 @@ const createCheckoutSession = async (context: Context, req: HttpRequest): Promis
   try {
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
     // Validate there is a body and the body contains fields priceId
-    if (!req.body || !req.body.priceId) {
+    if (!req.body || !req.body.priceId || req.body.userId) {
       context.res = {
         status: 400,
-        body: "Please pass a valid priceId in the request body"
+        body: "Please pass a valid priceId and userId in the request body"
       };
       return;
     }
 
     const session = await stripe.checkout.sessions.create({
+      ui_mode: 'embedded',
       line_items: [{
         price: req.body.priceId,
         quantity: 1,
       }],
       mode: 'subscription',
-      success_url: `${req.headers.origin}/?success=true`,
-      cancel_url: `${req.headers.origin}/?canceled=true`,
       automatic_tax: {enabled: true},
+      return_url: `${req.headers.origin}/return?session_id={CHECKOUT_SESSION_ID}`,
     });
 
     // Create a new telemetry client
