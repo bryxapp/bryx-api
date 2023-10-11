@@ -1,0 +1,63 @@
+import { Context, HttpRequest } from "@azure/functions";
+import { Subscription, updateSubscription } from "../utils/userInfo";
+let appInsights = require('applicationinsights');
+
+const validateUpgrade = async (context: Context, req: HttpRequest): Promise<void> => {
+  try {
+    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+    // Validate there is a body and the body contains fields priceId
+    if (!req.body || !req.body.sessionId || !req.body.userId || !req.body.subscriptionName) {
+      context.res = {
+        status: 400,
+        body: "Please pass a valid sessionId, userId, and subscriptionName in the request body"
+      };
+      return;
+    }
+    const sessionId = req.body.sessionId;
+    const userId = req.body.userId;
+    const subscriptionName = req.body.subscriptionName as Subscription;
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    // Check if the session was successful (you can customize this check based on your needs)
+    if (session.payment_status !== 'paid') {
+      context.res = {
+        status: 400,
+        body: "Payment was not successful."
+      };
+      return;
+    }
+    //update the DB with the new subscription
+    updateSubscription(userId, null, subscriptionName);
+
+    // Create a new telemetry client
+    const telemetryClient = appInsights.defaultClient;
+    //Log the event 
+    telemetryClient.trackEvent({
+      name: "updatedSubscription",
+      properties: {
+        api: "Checkout"
+      }
+    });
+    // Log a custom metric
+    telemetryClient.trackMetric({
+      name: "SubscriptionUpdated",
+      value: 1
+    });
+
+    context.res = {
+      status: 200,
+      body: session
+    };
+
+  } catch (error) {
+    appInsights.defaultClient.trackException({
+      exception: new Error("Create checkout session failed"), properties: { body: req.body, api: "Checkout" }
+    });
+    context.res = {
+      status: 500,
+      body: error.message
+    };
+  }
+};
+
+export default validateUpgrade;

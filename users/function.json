@@ -8,7 +8,8 @@
       "methods": [
         "get",
         "post",
-        "put"
+        "put",
+        "delete"
       ],
       "route": "user/{userId?}"
     },

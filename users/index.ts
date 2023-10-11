@@ -5,6 +5,7 @@ import updateUser from "./updateUser";
 import { verifyToken } from "../utils/security";
 import * as dotenv from 'dotenv';
 import { AuthType } from "../utils/security";
+import deleteUserSub from "./deleteUserSub";
 
 let appInsights = require('applicationinsights');
 
@@ -19,6 +20,11 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
   if (req.method === "PUT") {
     await updateUser(context, req);
+    return;
+  }
+
+  if(req.method === "DELETE") {
+    await deleteUserSub(context, req);
     return;
   }
 
