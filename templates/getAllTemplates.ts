@@ -18,7 +18,7 @@ const getAllTemplates = async (context: Context, req: HttpRequest, decodedToken:
 
 
     // Get templates with paging
-    let queryString = "SELECT * FROM c WHERE c.orgId = @orgId";
+    let queryString = "SELECT * FROM c WHERE c.orgId = @orgId AND c.status = 'active'";
     if(!orgId) {
       queryString += " AND c.userId = @userId";
     }

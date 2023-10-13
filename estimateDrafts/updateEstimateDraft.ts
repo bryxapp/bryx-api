@@ -27,6 +27,8 @@ const updateEstimateDraft = async (context: Context, req: HttpRequest, decodedTo
         }
 
         updatedEstimateDraftData.userId = decodedToken.sub;
+        updatedEstimateDraftData.orgId = decodedToken.org_id ? decodedToken.org_id : null;
+        updatedEstimateDraftData.status = "active";
 
         // Get the template from the database
         const container = await getDatabaseContainer("EstimateDrafts");

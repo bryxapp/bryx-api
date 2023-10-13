@@ -44,6 +44,8 @@ const updateTemplate = async (context: Context, req: HttpRequest,decodedToken:Au
 
     updatedTemplateData.id = templateId;
     updatedTemplateData.userId = userId;
+    updatedTemplateData.orgId = decodedToken.org_id? decodedToken.org_id : null;
+    updatedTemplateData.status = "active";
     // Update the template in the database
     const { resource: updatedTemplate } = await container.item(templateId).replace(updatedTemplateData);
 

@@ -23,6 +23,7 @@ const createTemplate = async (context: Context, req: HttpRequest, decodedToken: 
     const newTemplate = req.body;
     newTemplate.userId = decodedToken.sub;
     newTemplate.orgId = decodedToken.org_id? decodedToken.org_id : null;
+    newTemplate.status = "active";
 
     // Validate the template data
     if (!newTemplate || !newTemplate.friendlyName || !newTemplate.canvasDesign) {

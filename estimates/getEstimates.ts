@@ -20,7 +20,7 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
     const container = await getDatabaseContainer("Estimates");
 
     // Build query string
-    let queryString = "SELECT * FROM c WHERE c.orgId = @orgId";
+    let queryString = "SELECT * FROM c WHERE c.orgId = @orgId AND c.status = 'active'";
     if (!orgId) {
       queryString += " AND c.userId = @userId";
     }

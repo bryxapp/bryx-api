@@ -33,6 +33,7 @@ const createEstimateDraft = async (context: Context, req: HttpRequest, decodedTo
     }
     newEstimateDraft.userId = decodedToken.sub;
     newEstimateDraft.orgId = decodedToken.org_id ? decodedToken.org_id : null;
+    newEstimateDraft.status = "active";
 
     // Get the database
     const container = await getDatabaseContainer("EstimateDrafts");

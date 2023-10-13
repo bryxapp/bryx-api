@@ -16,7 +16,7 @@ const getEstimateDrafts = async (context: Context, req: HttpRequest, decodedToke
     // Get the database
     const container = await getDatabaseContainer("EstimateDrafts");
 
-    let queryString = "SELECT * FROM c WHERE c.orgId = @orgId";
+    let queryString = "SELECT * FROM c WHERE c.orgId = @orgId AND c.status = 'active'";
     if (!orgId) {
       queryString += " AND c.userId = @userId";
     }

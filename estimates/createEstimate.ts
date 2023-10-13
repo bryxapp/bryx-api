@@ -35,6 +35,7 @@ const createEstimate = async (context: Context, req: HttpRequest, decodedToken: 
 
     newEstimate.userId = decodedToken.sub;
     newEstimate.orgId = decodedToken.org_id ? decodedToken.org_id : null;
+    newEstimate.status = "active";
 
     const estimateHeight = newEstimate.estimatePDFHeight ? newEstimate.estimatePDFHeight : 792;
     const estimateWidth = newEstimate.estimatePDFWidth ? newEstimate.estimatePDFWidth : 612;
