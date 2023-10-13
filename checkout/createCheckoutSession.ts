@@ -1,9 +1,13 @@
 import { Context, HttpRequest } from "@azure/functions";
+import Stripe from 'stripe';
+
 let appInsights = require('applicationinsights');
 
 const createCheckoutSession = async (context: Context, req: HttpRequest): Promise<void> => {
   try {
-    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2023-08-16',
+    });
     // Validate there is a body and the body contains fields priceId
     if (!req.body || !req.body.priceId) {
       context.res = {

@@ -1,10 +1,15 @@
 import { Context, HttpRequest } from "@azure/functions";
-import { Subscription, updateSubscription } from "../utils/userInfo";
+import { Subscription, updateUserInfo } from "../utils/userInfo";
+import Stripe from 'stripe';
+
+
 let appInsights = require('applicationinsights');
 
 const validateUpgrade = async (context: Context, req: HttpRequest): Promise<void> => {
   try {
-    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2023-08-16',
+    });
     // Validate there is a body and the body contains fields priceId
     if (!req.body || !req.body.sessionId || !req.body.userId || !req.body.subscriptionName) {
       context.res = {
@@ -26,12 +31,13 @@ const validateUpgrade = async (context: Context, req: HttpRequest): Promise<void
       };
       return;
     }
-    //update the DB with the new subscription
-    updateSubscription(userId, null, subscriptionName);
+
+    // Update the DB with the new subscription
+    updateUserInfo(userId, session.customer.toString(), subscriptionName);
 
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;
-    //Log the event 
+    //Log the event
     telemetryClient.trackEvent({
       name: "updatedSubscription",
       properties: {
