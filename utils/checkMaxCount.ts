@@ -1,5 +1,5 @@
 import { ContainerName, getDatabaseContainer } from "./database"
-import { getSubscription, Subscription } from "./userInfo";
+import { getOrgSubscription, getUserSubscription, Subscription } from "./userInfo";
 
 export const checkMaxCounts = async (userId: string, orgId: string, containerName: ContainerName, getMaxCount: (subscription: Subscription) => number) => {
     const container = await getDatabaseContainer(containerName);
@@ -15,8 +15,14 @@ export const checkMaxCounts = async (userId: string, orgId: string, containerNam
         .fetchAll();
 
     const count = countResult[0];
-    const userSubscription = await getSubscription(userId, orgId);
-    const maxCount = getMaxCount(userSubscription);
+    let subscription;
+    if (orgId) {
+        subscription = await getOrgSubscription(orgId);
+    }
+    else {
+        subscription = await getUserSubscription(userId);
+    }
+    const maxCount = getMaxCount(subscription);
     if (count >= maxCount) {
         return true;
     }
