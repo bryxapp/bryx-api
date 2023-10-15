@@ -10,7 +10,7 @@
         "post",
         "delete"
       ],
-      "route": "organization/{action}"
+      "route": "organization/{action?}"
     },
     {
       "type": "http",
