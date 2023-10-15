@@ -1,21 +1,25 @@
 import { ManagementClient } from 'auth0';
-import { getDatabaseContainer } from './database';
 
-const auth0 = new ManagementClient({
-    domain: 'dev-eqbwfxwsxyrgrg2y.us.auth0.com',
-    clientId: 'WXOgQUbq0W5JRnG8nJaW3O0lcBhSPqO9',
-    clientSecret: process.env.AUTH0_CLIENT_SECRET,
-});
+const initializeAuth0Client = () => {
+    return new ManagementClient({
+        domain: 'dev-eqbwfxwsxyrgrg2y.us.auth0.com',
+        clientId: 'dyIwPx03tlWNOtB0d5pShhznlJ356Md3',
+        clientSecret: process.env.AUTH0_CLIENT_SECRET,
+    });
+}
 
 export const createAuth0Organization = async (teamName: string) => {
+    const auth0 = initializeAuth0Client();
+    const name = await getName(teamName);
     const createdOrganization = await auth0.organizations.create({
-        name: teamName,
-
+        name: name,
+        display_name: teamName,
     });
     return createdOrganization.data.id;
 }
 
 export const getOrganization = async (orgId: string) => {
+    const auth0 = initializeAuth0Client();
     const organization = await auth0.organizations.get({
         id: orgId,
     });
@@ -23,6 +27,7 @@ export const getOrganization = async (orgId: string) => {
 }
 
 export const AddUserToOrganization = async (userId: string, orgId: string) => {
+    const auth0 = initializeAuth0Client();
     await auth0.organizations.addMembers({
         id: orgId,
     },
@@ -33,6 +38,7 @@ export const AddUserToOrganization = async (userId: string, orgId: string) => {
 }
 
 export const GetOrganizationMembers = async (orgId: string) => {
+    const auth0 = initializeAuth0Client();
     const members = await auth0.organizations.getMembers({
         id: orgId,
     });
@@ -40,6 +46,7 @@ export const GetOrganizationMembers = async (orgId: string) => {
 }
 
 export const InviteUserToOrganization = async (email: string, orgId: string, teamName: string) => {
+    const auth0 = initializeAuth0Client();
     await auth0.organizations.createInvitation({
         id: orgId,
     },
@@ -56,6 +63,7 @@ export const InviteUserToOrganization = async (email: string, orgId: string, tea
 }
 
 export const GetOrganizationIvites = async (orgId: string) => {
+    const auth0 = initializeAuth0Client();
     const invites = await auth0.organizations.getInvitations({
         id: orgId,
     });
@@ -63,6 +71,7 @@ export const GetOrganizationIvites = async (orgId: string) => {
 }
 
 export const RemoveUserInvite = async (inviteId: string, orgId: string) => {
+    const auth0 = initializeAuth0Client();
     await auth0.organizations.deleteInvitation({
         id: orgId,
         invitation_id: inviteId
@@ -70,6 +79,7 @@ export const RemoveUserInvite = async (inviteId: string, orgId: string) => {
 }
 
 export const RemoveUserFromOrganization = async (userId: string, orgId: string) => {
+    const auth0 = initializeAuth0Client();
     await auth0.organizations.deleteMembers({
         id: orgId,
     },
@@ -80,4 +90,12 @@ export const RemoveUserFromOrganization = async (userId: string, orgId: string) 
 }
 
 
-
+const getName = async (teamName: string) => {
+    //remove whitespace
+    teamName = teamName.replace(/\s/g, '');
+    //remove special characters
+    teamName = teamName.replace(/[^\w\s]/gi, '');
+    //convert to lowercase
+    teamName = teamName.toLowerCase();
+    return teamName;
+}
