@@ -1,10 +1,10 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { AuthType } from "../utils/security";
-import { GetOrganizationIvites, GetOrganizationMembers } from "../utils/auth0";
+import { GetOrganizationMembers, RemoveUserFromOrganization } from "../utils/auth0";
 
 let appInsights = require('applicationinsights');
 
-const getOrganizationMembers = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const removeOrganizationMember = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
   try {
     const orgId = decodedToken.org_id;
     if (!orgId) {
@@ -14,15 +14,21 @@ const getOrganizationMembers = async (context: Context, req: HttpRequest, decode
       };
       return;
     }
+    if(!req.body.memberId){
+      context.res = {
+        status: 400,
+        body: "Member ID to remove not found."
+      };
+      return;
+    }
 
-    const members = await GetOrganizationMembers(orgId);
-    const invites = await GetOrganizationIvites(orgId);
-
+    await RemoveUserFromOrganization(req.body.memberId, orgId);
+    
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;
     //Log the event 
     telemetryClient.trackEvent({
-      name: "getOrganizationMembers",
+      name: "removeOrganizationMember",
       properties: {
         userId: decodedToken.sub,
         api: "Organizations"
@@ -31,21 +37,17 @@ const getOrganizationMembers = async (context: Context, req: HttpRequest, decode
 
     // Log a custom metric
     telemetryClient.trackMetric({
-      name: "OrganizationMembersRetrieved",
+      name: "OrganizationMemberRemoved",
       value: 1
     });
 
 
     context.res = {
       status: 200,
-      body: {
-        members: members,
-        invites: invites
-      }
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Getting Organization members Failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Organizations" }
+      exception: new Error("Removing Organization Member Failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Organizations" }
     });
     context.res = {
       status: 500,
@@ -54,4 +56,4 @@ const getOrganizationMembers = async (context: Context, req: HttpRequest, decode
   }
 };
 
-export default getOrganizationMembers;
+export default removeOrganizationMember;

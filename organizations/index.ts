@@ -5,6 +5,7 @@ import * as dotenv from 'dotenv';
 import { AuthType } from "../utils/security";
 import inviteUser from "./InviteUser";
 import getOrganizationMembers from "./GetOrganizationMembers";
+import removeOrganizationMember from "./RemoveOrganizationMember";
 
 let appInsights = require('applicationinsights');
 
@@ -45,6 +46,11 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
       return;
     }
     await getOrgById(context, req, decodedToken);
+    return;
+  }
+
+  if (req.method === "DELETE") {
+    await removeOrganizationMember(context, req, decodedToken);
     return;
   }
 

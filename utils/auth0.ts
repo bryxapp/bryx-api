@@ -55,9 +55,29 @@ export const InviteUserToOrganization = async (email: string, orgId: string, tea
     );
 }
 
-//TODO Get Invites / Cancel Invites
+export const GetOrganizationIvites = async (orgId: string) => {
+    const invites = await auth0.organizations.getInvitations({
+        id: orgId,
+    });
+    return invites;
+}
 
-//Remove User from Organization
+export const RemoveUserInvite = async (inviteId: string, orgId: string) => {
+    await auth0.organizations.deleteInvitation({
+        id: orgId,
+        invitation_id: inviteId
+    });
+}
+
+export const RemoveUserFromOrganization = async (userId: string, orgId: string) => {
+    await auth0.organizations.deleteMembers({
+        id: orgId,
+    },
+        {
+            members: [userId]
+        }
+    );
+}
 
 
 
