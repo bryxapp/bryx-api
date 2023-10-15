@@ -1,12 +1,20 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
 import { AuthType } from "../utils/security";
+import { getOrganization } from "../utils/auth0";
 
 let appInsights = require('applicationinsights');
 
 const getOrgById = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
   try {
-    const orgId = decodedToken.org_id? decodedToken.org_id : null;
+    const orgId = decodedToken.org_id;
+    if (!orgId) {
+      context.res = {
+        status: 404,
+        body: "Org not found."
+      };
+      return;
+    }
     // Get the database
     const container = await getDatabaseContainer("Organizations");
 
@@ -24,7 +32,17 @@ const getOrgById = async (context: Context, req: HttpRequest, decodedToken: Auth
     const { resources: orgs } = await container.items
       .query(querySpec)
       .fetchAll();
+    if (!orgs || orgs.length === 0) {
+      context.res = {
+        status: 404,
+        body: "Org not found."
+      };
+      return;
+    }
     const org = orgs[0];
+
+    //Get Auth0 Org
+    const auth0Org = await getOrganization(orgId);
 
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;
@@ -53,7 +71,10 @@ const getOrgById = async (context: Context, req: HttpRequest, decodedToken: Auth
 
     context.res = {
       status: 200,
-      body: org
+      body: {
+        bryxOrg: org,
+        auth0Org: auth0Org
+      }
     };
   } catch (error) {
     appInsights.defaultClient.trackException({

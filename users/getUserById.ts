@@ -23,6 +23,13 @@ const getUserById = async (context: Context, req: HttpRequest, decodedToken: Aut
     // Get the user
     const { resources: users } = await container.items
       .query(querySpec).fetchAll();
+    if(!users || users.length === 0) {
+      context.res = {
+        status: 404,
+        body: "User not found."
+      };
+      return;
+    }
     const user = users[0];
 
     // Create a new telemetry client

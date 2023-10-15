@@ -1,9 +1,10 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import getOrgById from "./getOrgById";
-import updateOrg from "./updateOrg";
 import { verifyToken } from "../utils/security";
 import * as dotenv from 'dotenv';
 import { AuthType } from "../utils/security";
+import inviteUser from "./InviteUser";
+import getOrganizationMembers from "./GetOrganizationMembers";
 
 let appInsights = require('applicationinsights');
 
@@ -11,33 +12,40 @@ dotenv.config();
 appInsights.setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING).start();
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
-  if (req.method === "PUT") {
-    await updateOrg(context, req);
+  // Verify that the request is authenticated
+  const token = req.headers.authorization;
+  if (!token) {
+    context.res = { status: 401 };
     return;
   }
 
+  let decodedToken: AuthType;
+  try {
+    decodedToken = verifyToken(token);
+  } catch (error) {
+    context.res = { status: 401 };
+    return;
+  }
+
+  if (!decodedToken) {
+    context.res = { status: 401 };
+    return;
+  }
+
+  if (req.method === "POST") {
+    if (req.url.includes("invite-user")) {
+      await inviteUser(context, req, decodedToken);
+      return;
+    }
+  }
+
   if (req.method === "GET") {
-
-    // Verify that the request is authenticated
-    const token = req.headers.authorization;
-    if (!token) {
-      context.res = { status: 401 };
+    if (req.url.includes("members")) {
+      await getOrganizationMembers(context, req, decodedToken);
       return;
     }
-
-    let decodedToken: AuthType;
-    try {
-      decodedToken = verifyToken(token);
-    } catch (error) {
-      context.res = { status: 401 };
-      return;
-    }
-
-    if (!decodedToken) {
-      context.res = { status: 401 };
-      return;
-    }
-    getOrgById(context, req, decodedToken);
+    await getOrgById(context, req, decodedToken);
+    return;
   }
 
   context.res = {

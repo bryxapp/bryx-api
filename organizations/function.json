@@ -7,7 +7,7 @@
       "name": "req",
       "methods": [
         "get",
-        "put"
+        "post"
       ],
       "route": "organization/{orgId?}"
     },
