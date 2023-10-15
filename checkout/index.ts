@@ -18,18 +18,18 @@ const httpTrigger: AzureFunction = async (context: Context, req: HttpRequest): P
   };
 
   if (req.method === "POST") {
-    if (req.url === "/checkout/pro-checkout") {
+    if (req.url.includes("pro-checkout")) {
       await createProCheckoutSession(context, req);
       return;
-    } else if (req.url === "/checkout/team-checkout") {
+    } else if (req.url.includes("team-checkout")) {
       await createTeamCheckoutSession(context, req);
       return;
     }
   } else if (req.method === "PUT") {
-    if (req.url === "/checkout/pro-upgrade") {
+    if (req.url.includes("pro-upgrade")) {
       await proUpgrade(context, req);
       return;
-    } else if (req.url === "/checkout/create-team") {
+    } else if (req.url.includes("create-team")) {
       await createTeam(context, req);
       return;
     }
