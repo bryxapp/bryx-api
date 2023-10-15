@@ -16,6 +16,7 @@
     "@azure/storage-blob": "^12.12.0",
     "@stripe/stripe-js": "^2.1.7",
     "applicationinsights": "^2.7.0",
+    "auth0": "^4.0.1",
     "dotenv": "^16.0.3",
     "jsonwebtoken": "^9.0.1",
     "jspdf": "^2.5.1",

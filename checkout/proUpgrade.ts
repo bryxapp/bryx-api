@@ -1,5 +1,5 @@
 import { Context, HttpRequest } from "@azure/functions";
-import { Subscription, updateUserInfo } from "../utils/userInfo";
+import { UserSubscription, setUserSubscriptionPro } from "../utils/userInfo";
 import Stripe from 'stripe';
 
 
@@ -10,17 +10,16 @@ const proUpgrade = async (context: Context, req: HttpRequest): Promise<void> => 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: '2023-08-16',
     });
-    // Validate there is a body and the body contains fields priceId
-    if (!req.body || !req.body.sessionId || !req.body.userId || !req.body.subscriptionName) {
+    //Validate Body
+    if (!req.body || !req.body.sessionId || !req.body.userId) {
       context.res = {
         status: 400,
-        body: "Please pass a valid sessionId, userId, and subscriptionName in the request body"
+        body: "Please pass a valid sessionId and userId in the request body"
       };
       return;
     }
     const sessionId = req.body.sessionId;
     const userId = req.body.userId;
-    const subscriptionName = req.body.subscriptionName as Subscription;
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     // Check if the session was successful (you can customize this check based on your needs)
@@ -33,7 +32,7 @@ const proUpgrade = async (context: Context, req: HttpRequest): Promise<void> => 
     }
 
     // Update the DB with the new subscription
-    updateUserInfo(userId, session.customer.toString(), subscriptionName);
+    setUserSubscriptionPro(userId, session.customer.toString());
 
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;

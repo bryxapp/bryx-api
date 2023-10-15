@@ -1,6 +1,17 @@
 import { getDatabaseContainer } from "./database";
 
-export type Subscription = "" | "STARTER" | "PRO" | "TEAM" | "ENTERPRISE";
+export type UserSubscription = "" | "STARTER" | "PRO"
+export type OrgSubscription= "" | "TEAM" | "ENTERPRISE";
+
+export enum UserSubscriptionNames {
+    STARTER = "STARTER",
+    PRO = "PRO",
+}
+
+export enum OrgSubscriptionNames {
+    TEAM = "TEAM",
+    ENTERPRISE = "ENTERPRISE",
+}
 
 export const getUserSubscription = async (userId: string) => {
     const container = await getDatabaseContainer("Users");
@@ -20,7 +31,7 @@ export const getUserSubscription = async (userId: string) => {
         throw new Error("User not found");
     }
     const user = users[0];
-    return user.subscription as Subscription;
+    return user.subscription as UserSubscription;
 };
 
 export const getOrgSubscription = async (orgId: string) => {
@@ -41,10 +52,10 @@ export const getOrgSubscription = async (orgId: string) => {
         throw new Error("Organization not found");
     }
     const org = orgs[0];
-    return org.subscription as Subscription;
+    return org.subscription as OrgSubscription;
 };
 
-export const updateUserInfo = async (userId: string, stripeUserId: string, subscription: Subscription) => {
+export const setUserSubscriptionPro = async (userId: string, stripeUserId: string) => {
     const container = await getDatabaseContainer("Users");
     let querySpec = {
         query: "SELECT * FROM c WHERE c.userId = @userId",
@@ -62,11 +73,34 @@ export const updateUserInfo = async (userId: string, stripeUserId: string, subsc
         throw new Error("User not found");
     }
     const user = users[0];
-    user.subscription = subscription;
+    user.subscription = UserSubscriptionNames.PRO;
     user.stripeUserId = stripeUserId;
     await container.items.upsert(user);
 }
-export const updateOrgInfo = async (orgId: string, stripeUserId: string, subscription: Subscription) => {
+
+export const clearUserSubscription = async (userId: string) => {
+    const container = await getDatabaseContainer("Users");
+    let querySpec = {
+        query: "SELECT * FROM c WHERE c.userId = @userId",
+        parameters: [
+            {
+                name: "@userId",
+                value: userId
+            }
+        ]
+    };
+    const { resources: users } = await container.items
+        .query(querySpec)
+        .fetchAll();
+    if (users.length === 0) {
+        throw new Error("User not found");
+    }
+    const user = users[0];
+    user.subscription = UserSubscriptionNames.STARTER;
+    await container.items.upsert(user);
+}
+
+export const clearOrgSubscription = async (orgId: string) => {
     const container = await getDatabaseContainer("Organizations");
     let querySpec = {
         query: "SELECT * FROM c WHERE c.orgId = @orgId",
@@ -84,7 +118,6 @@ export const updateOrgInfo = async (orgId: string, stripeUserId: string, subscri
         throw new Error("Organization not found");
     }
     const org = orgs[0];
-    org.subscription = subscription;
-    org.stripeUserId = stripeUserId;
+    org.subscription = OrgSubscriptionNames.ENTERPRISE;
     await container.items.upsert(org);
 }

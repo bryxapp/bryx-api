@@ -1,8 +1,7 @@
 import { Context, HttpRequest } from "@azure/functions";
-import { Subscription, updateUserInfo } from "../utils/userInfo";
 import Stripe from 'stripe';
-
-
+import { AddUserToOrganization, createAuth0Organization } from "../utils/auth0";
+import { createOrg } from "../utils/orgInfo";
 let appInsights = require('applicationinsights');
 
 const createTeam = async (context: Context, req: HttpRequest): Promise<void> => {
@@ -10,17 +9,16 @@ const createTeam = async (context: Context, req: HttpRequest): Promise<void> => 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: '2023-08-16',
     });
-    // Validate there is a body and the body contains fields priceId
-    if (!req.body || !req.body.sessionId || !req.body.userId || !req.body.subscriptionName) {
+    // Validate body
+    if (!req.body || !req.body.sessionId || !req.body.userId) {
       context.res = {
         status: 400,
-        body: "Please pass a valid sessionId, userId, and subscriptionName in the request body"
+        body: "Please pass a valid sessionId and userId"
       };
       return;
     }
     const sessionId = req.body.sessionId;
     const userId = req.body.userId;
-    const subscriptionName = req.body.subscriptionName as Subscription;
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     // Check if the session was successful (you can customize this check based on your needs)
@@ -31,9 +29,18 @@ const createTeam = async (context: Context, req: HttpRequest): Promise<void> => 
       };
       return;
     }
+    const stripeUserId = session.customer as string;
+    let teamName = session.metadata.teamName;
+    if (!teamName) {
+      teamName = "My Team";
+    }
 
-    // Update the DB with the new subscription
-    updateUserInfo(userId, session.customer.toString(), subscriptionName);
+    //Create Org in Auth0
+    const orgId = await createAuth0Organization(teamName);
+    //Create Org in DB
+    await createOrg(orgId, teamName,stripeUserId);
+    //Add user to Org in Auth0
+    await AddUserToOrganization(userId, orgId);
 
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;

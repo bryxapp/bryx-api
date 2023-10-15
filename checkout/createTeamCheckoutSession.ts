@@ -12,17 +12,15 @@ const createTeamCheckoutSession = async (context: Context, req: HttpRequest): Pr
     });
 
     // Validate the request body
-    if (!req.body || !req.body.priceId) {
+    if (!req.body || !req.body.teamName) {
       context.res = {
         status: 400,
-        body: "Please pass a valid priceId in the request body"
+        body: "Please pass a valid team name in the request body"
       };
       return;
     }
 
-    // Define the cancel and success URLs based on the selected priceId
-    const cancel_url = `${req.headers.origin}/'team-checkout?canceled=true&session_id={CHECKOUT_SESSION_ID}`;
-    const success_url = `${req.headers.origin}/team-checkout?success=true&session_id={CHECKOUT_SESSION_ID}`;
+    const teamName = req.body.teamName;
 
     // Create a new checkout session
     const session = await stripe.checkout.sessions.create({
@@ -32,8 +30,11 @@ const createTeamCheckoutSession = async (context: Context, req: HttpRequest): Pr
       }],
       mode: 'subscription',
       automatic_tax: { enabled: true },
-      success_url,
-      cancel_url,
+      success_url: `${req.headers.origin}/team-checkout?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.origin}/'team-checkout?canceled=true&session_id={CHECKOUT_SESSION_ID}`,
+      metadata: {
+        teamName: teamName
+      }
     });
 
     // Log telemetry

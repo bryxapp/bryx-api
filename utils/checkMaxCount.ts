@@ -1,7 +1,7 @@
 import { ContainerName, getDatabaseContainer } from "./database"
-import { getOrgSubscription, getUserSubscription, Subscription } from "./userInfo";
+import { getOrgSubscription, getUserSubscription, OrgSubscription, OrgSubscriptionNames, UserSubscription, UserSubscriptionNames } from "./userInfo";
 
-export const checkMaxCounts = async (userId: string, orgId: string, containerName: ContainerName, getMaxCount: (subscription: Subscription) => number) => {
+export const checkMaxCounts = async (userId: string, orgId: string, containerName: ContainerName, getMaxCount: (subscription: UserSubscription) => number) => {
     const container = await getDatabaseContainer(containerName);
 
     let queryString = "SELECT VALUE COUNT(1) FROM c WHERE c.orgId = @orgId";
@@ -31,55 +31,59 @@ export const checkMaxCounts = async (userId: string, orgId: string, containerNam
     }
 }
 
-export const getMaxEstimates = (subscription: Subscription) => {
+export const getMaxEstimates = (subscription: UserSubscription|OrgSubscription) => {
     switch (subscription) {
+        case null:
         case "":
-        case "STARTER":
+        case UserSubscriptionNames.STARTER:
             return 10;
-        case "PRO":
-        case "TEAM":
-        case "ENTERPRISE":
+        case UserSubscriptionNames.PRO:
+        case OrgSubscriptionNames.TEAM:
+        case OrgSubscriptionNames.ENTERPRISE:
             return 250; //"UNLIMITED"
         default:
             return 0;
     }
 }
 
-export const getMaxEstimateDrafts = (subscription: Subscription) => {
+export const getMaxEstimateDrafts = (subscription: UserSubscription|OrgSubscription) => {
     switch (subscription) {
+        case null:
         case "":
-        case "STARTER":
-        case "PRO":
-        case "TEAM":
-        case "ENTERPRISE":
+        case UserSubscriptionNames.STARTER:
+        case UserSubscriptionNames.PRO:
+        case OrgSubscriptionNames.TEAM:
+        case OrgSubscriptionNames.ENTERPRISE:
             return 50; //"UNLIMITED"
         default:
             return 0;
     }
 }
 
-export const getMaxTemplates = (subscription: Subscription) => {
+export const getMaxTemplates = (subscription: UserSubscription|OrgSubscription) => {
     switch (subscription) {
+        case null:
         case "":
-        case "STARTER":
+        case UserSubscriptionNames.STARTER:
             return 3;
-        case "PRO":
+        case UserSubscriptionNames.PRO:
             return 5;
-        case "TEAM":
-        case "ENTERPRISE":
+        case OrgSubscriptionNames.TEAM:
+        case OrgSubscriptionNames.ENTERPRISE:
             return 20; //"UNLIMITED"
         default:
             return 0;
     }
 }
 
-export const getMaxUserImages = (subscription: Subscription) => {
+export const getMaxUserImages = (subscription: UserSubscription|OrgSubscription) => {
     switch (subscription) {
+        case null:
         case "":
-        case "STARTER":
-        case "PRO":
-        case "TEAM":
-        case "ENTERPRISE":
+        case UserSubscriptionNames.STARTER:
+        case UserSubscriptionNames.PRO:
+        case OrgSubscriptionNames.TEAM:
+        case OrgSubscriptionNames.ENTERPRISE:
             return 10; //"UNLIMITED"
         default:
             return 0;

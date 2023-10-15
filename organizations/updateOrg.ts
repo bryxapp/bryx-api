@@ -56,6 +56,7 @@ const updateOrg = async (context: Context, req: HttpRequest): Promise<void> => {
       status: 200,
       body: {
         "msg": "Org updated successfully.",
+        "org": updatedOrg
       }
     };
   } catch (error) {
