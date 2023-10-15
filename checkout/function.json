@@ -8,7 +8,7 @@
       "methods": [
         "post", "put"
       ],
-      "route": "checkout"
+      "route": "checkout/{action}"
     },
     {
       "type": "http",

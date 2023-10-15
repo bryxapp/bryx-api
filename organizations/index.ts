@@ -34,14 +34,14 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
   }
 
   if (req.method === "POST") {
-    if (req.url.includes("invite-user")) {
+    if (req.params.action =="invite-user") {
       await inviteUser(context, req, decodedToken);
       return;
     }
   }
 
   if (req.method === "GET") {
-    if (req.url.includes("members")) {
+    if (req.params.action =="members") {
       await getOrganizationMembers(context, req, decodedToken);
       return;
     }
