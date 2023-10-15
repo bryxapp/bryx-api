@@ -5,7 +5,7 @@ import Stripe from 'stripe';
 
 let appInsights = require('applicationinsights');
 
-const validateUpgrade = async (context: Context, req: HttpRequest): Promise<void> => {
+const createTeam = async (context: Context, req: HttpRequest): Promise<void> => {
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: '2023-08-16',
@@ -39,14 +39,14 @@ const validateUpgrade = async (context: Context, req: HttpRequest): Promise<void
     const telemetryClient = appInsights.defaultClient;
     //Log the event
     telemetryClient.trackEvent({
-      name: "updatedSubscription",
+      name: "CreateTeam",
       properties: {
         api: "Checkout"
       }
     });
     // Log a custom metric
     telemetryClient.trackMetric({
-      name: "SubscriptionUpdated",
+      name: "TeamCreated",
       value: 1
     });
 
@@ -57,7 +57,7 @@ const validateUpgrade = async (context: Context, req: HttpRequest): Promise<void
 
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Create checkout session failed"), properties: { body: req.body, api: "Checkout" }
+      exception: new Error("Create team failed"), properties: { body: req.body, api: "Checkout" }
     });
     context.res = {
       status: 500,
@@ -66,4 +66,4 @@ const validateUpgrade = async (context: Context, req: HttpRequest): Promise<void
   }
 };
 
-export default validateUpgrade;
+export default createTeam;

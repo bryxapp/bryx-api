@@ -2,11 +2,9 @@ import { Context, HttpRequest } from "@azure/functions";
 import Stripe from 'stripe';
 
 let appInsights = require('applicationinsights');
-
-const ProPriceId = 'price_1NypfzEjO3JKZRm1Wj1BdyDz';
 const TeamPriceId = 'price_1NypgEEjO3JKZRm1JSmm4nSC';
 
-const createCheckoutSession = async (context: Context, req: HttpRequest): Promise<void> => {
+const createTeamCheckoutSession = async (context: Context, req: HttpRequest): Promise<void> => {
   try {
     // Initialize the Stripe client
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -23,15 +21,13 @@ const createCheckoutSession = async (context: Context, req: HttpRequest): Promis
     }
 
     // Define the cancel and success URLs based on the selected priceId
-    const priceId = req.body.priceId;
-    const isProPrice = priceId === ProPriceId;
-    const cancel_url = `${req.headers.origin}/${isProPrice ? 'proCheckout' : 'teamCheckout'}?canceled=true&session_id={CHECKOUT_SESSION_ID}`;
-    const success_url = `${req.headers.origin}/${isProPrice ? 'proCheckout' : 'teamCheckout'}?success=true&session_id={CHECKOUT_SESSION_ID}`;
+    const cancel_url = `${req.headers.origin}/'team-checkout?canceled=true&session_id={CHECKOUT_SESSION_ID}`;
+    const success_url = `${req.headers.origin}/team-checkout?success=true&session_id={CHECKOUT_SESSION_ID}`;
 
     // Create a new checkout session
     const session = await stripe.checkout.sessions.create({
       line_items: [{
-        price: priceId,
+        price: TeamPriceId,
         quantity: 1,
       }],
       mode: 'subscription',
@@ -43,13 +39,13 @@ const createCheckoutSession = async (context: Context, req: HttpRequest): Promis
     // Log telemetry
     const telemetryClient = appInsights.defaultClient;
     telemetryClient.trackEvent({
-      name: "CreateCheckoutSession",
+      name: "CreateTeamCheckoutSession",
       properties: {
         api: "Checkout"
       }
     });
     telemetryClient.trackMetric({
-      name: "CheckoutSessionCreated",
+      name: "TeamCheckoutSessionCreated",
       value: 1
     });
 
@@ -60,7 +56,7 @@ const createCheckoutSession = async (context: Context, req: HttpRequest): Promis
   } catch (error) {
     // Handle errors and log telemetry
     appInsights.defaultClient.trackException({
-      exception: new Error("Create checkout session failed"),
+      exception: new Error("Create team checkout session failed"),
       properties: { body: req.body, api: "Checkout" }
     });
 
@@ -71,4 +67,4 @@ const createCheckoutSession = async (context: Context, req: HttpRequest): Promis
   }
 };
 
-export default createCheckoutSession;
+export default createTeamCheckoutSession;

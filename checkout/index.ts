@@ -1,27 +1,41 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import createCheckoutSession from "./createCheckoutSession";
-import validateUpgrade from "./validateUpgrade";
+import createProCheckoutSession from "./createProCheckoutSession";
+import createTeamCheckoutSession from "./createTeamCheckoutSession";
+import proUpgrade from "./proUpgrade";
+import createTeam from "./createTeam";
 import * as dotenv from 'dotenv';
-
-let appInsights = require('applicationinsights');
+import * as appInsights from 'applicationinsights';
 
 dotenv.config();
 appInsights.setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING).start();
 
-const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
+const httpTrigger: AzureFunction = async (context: Context, req: HttpRequest): Promise<void> => {
+  const invalidRequest = () => {
+    context.res = {
+      status: 400,
+      body: "Invalid request path or method."
+    };
+  };
+
   if (req.method === "POST") {
-    await createCheckoutSession(context, req);
-    return;
-  }
-  if (req.method === "PUT") {
-    await validateUpgrade(context, req);
-    return;
+    if (req.url === "/checkout/pro-checkout") {
+      await createProCheckoutSession(context, req);
+      return;
+    } else if (req.url === "/checkout/team-checkout") {
+      await createTeamCheckoutSession(context, req);
+      return;
+    }
+  } else if (req.method === "PUT") {
+    if (req.url === "/checkout/pro-upgrade") {
+      await proUpgrade(context, req);
+      return;
+    } else if (req.url === "/checkout/create-team") {
+      await createTeam(context, req);
+      return;
+    }
   }
 
-  context.res = {
-    status: 400,
-    body: "Invalid request method."
-  };
+  invalidRequest();
 };
 
 export default httpTrigger;
