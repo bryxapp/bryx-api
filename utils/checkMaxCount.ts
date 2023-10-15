@@ -39,7 +39,6 @@ export const getMaxEstimates = (subscription: UserSubscription|OrgSubscription) 
             return 10;
         case UserSubscriptionNames.PRO:
         case OrgSubscriptionNames.TEAM:
-        case OrgSubscriptionNames.ENTERPRISE:
             return 250; //"UNLIMITED"
         default:
             return 0;
@@ -53,7 +52,6 @@ export const getMaxEstimateDrafts = (subscription: UserSubscription|OrgSubscript
         case UserSubscriptionNames.STARTER:
         case UserSubscriptionNames.PRO:
         case OrgSubscriptionNames.TEAM:
-        case OrgSubscriptionNames.ENTERPRISE:
             return 50; //"UNLIMITED"
         default:
             return 0;
@@ -69,7 +67,6 @@ export const getMaxTemplates = (subscription: UserSubscription|OrgSubscription) 
         case UserSubscriptionNames.PRO:
             return 5;
         case OrgSubscriptionNames.TEAM:
-        case OrgSubscriptionNames.ENTERPRISE:
             return 20; //"UNLIMITED"
         default:
             return 0;
@@ -83,7 +80,6 @@ export const getMaxUserImages = (subscription: UserSubscription|OrgSubscription)
         case UserSubscriptionNames.STARTER:
         case UserSubscriptionNames.PRO:
         case OrgSubscriptionNames.TEAM:
-        case OrgSubscriptionNames.ENTERPRISE:
             return 10; //"UNLIMITED"
         default:
             return 0;

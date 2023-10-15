@@ -1,7 +1,7 @@
 import { getDatabaseContainer } from "./database";
 
 export type UserSubscription = "" | "STARTER" | "PRO"
-export type OrgSubscription= "" | "TEAM" | "ENTERPRISE";
+export type OrgSubscription = "" | "TEAM";
 
 export enum UserSubscriptionNames {
     STARTER = "STARTER",
@@ -9,8 +9,7 @@ export enum UserSubscriptionNames {
 }
 
 export enum OrgSubscriptionNames {
-    TEAM = "TEAM",
-    ENTERPRISE = "ENTERPRISE",
+    TEAM = "TEAM"
 }
 
 export const getUserSubscription = async (userId: string) => {
@@ -118,6 +117,6 @@ export const clearOrgSubscription = async (orgId: string) => {
         throw new Error("Organization not found");
     }
     const org = orgs[0];
-    org.subscription = OrgSubscriptionNames.ENTERPRISE;
+    org.subscription = "";
     await container.items.upsert(org);
 }
