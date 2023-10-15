@@ -14,6 +14,14 @@ export const createAuth0Organization = async (teamName: string) => {
     const createdOrganization = await auth0.organizations.create({
         name: name,
         display_name: teamName,
+        enabled_connections: [
+            {
+                connection_id: 'con_cxCgkywfjCeEZ5vO' //Username-Password-Authentication
+            },
+            {
+                connection_id: 'con_dnoGDuaZv0HlQog2' //Google-OAuth2
+            }
+        ]
     });
     return createdOrganization.data.id;
 }
