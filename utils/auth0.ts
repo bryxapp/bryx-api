@@ -31,7 +31,7 @@ export const getOrganization = async (orgId: string) => {
     const organization = await auth0.organizations.get({
         id: orgId,
     });
-    return organization;
+    return organization.data;
 }
 
 export const AddUserToOrganization = async (userId: string, orgId: string) => {
