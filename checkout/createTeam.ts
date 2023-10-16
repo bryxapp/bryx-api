@@ -38,7 +38,7 @@ const createTeam = async (context: Context, req: HttpRequest): Promise<void> => 
     //Create Org in Auth0
     const orgId = await createAuth0Organization(teamName);
     //Create Org in DB
-    await createOrg(orgId, teamName,stripeUserId);
+    await createOrg(orgId, teamName, userId, stripeUserId);
     //Add user to Org in Auth0
     await AddUserToOrganization(userId, orgId);
 
