@@ -1,10 +1,10 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { AuthType } from "../utils/security";
-import { GetOrganizationMembers, RemoveUserFromOrganization } from "../utils/auth0";
+import { DeleteUserInvite } from "../utils/auth0";
 
 let appInsights = require('applicationinsights');
 
-const removeOrganizationMember = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const deleteOrganizationInvite = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
   try {
     const orgId = decodedToken.org_id;
     if (!orgId) {
@@ -14,21 +14,21 @@ const removeOrganizationMember = async (context: Context, req: HttpRequest, deco
       };
       return;
     }
-    if(!req.body.memberId){
+    if(!req.body.inviteId){
       context.res = {
         status: 400,
-        body: "Member ID to remove not found."
+        body: "Invite ID to delete not found."
       };
       return;
     }
 
-    await RemoveUserFromOrganization(req.body.memberId, orgId);
+    await DeleteUserInvite(req.body.inviteId, orgId);
     
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;
     //Log the event 
     telemetryClient.trackEvent({
-      name: "removeOrganizationMember",
+      name: "deleteOrganizationInvite",
       properties: {
         userId: decodedToken.sub,
         api: "Organizations"
@@ -37,7 +37,7 @@ const removeOrganizationMember = async (context: Context, req: HttpRequest, deco
 
     // Log a custom metric
     telemetryClient.trackMetric({
-      name: "OrganizationMemberRemoved",
+      name: "OrganizationInviteDeleted",
       value: 1
     });
 
@@ -47,7 +47,7 @@ const removeOrganizationMember = async (context: Context, req: HttpRequest, deco
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Removing Organization Member Failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Organizations" }
+      exception: new Error("Deleting Organization Invite Failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Organizations" }
     });
     context.res = {
       status: 500,
@@ -56,4 +56,4 @@ const removeOrganizationMember = async (context: Context, req: HttpRequest, deco
   }
 };
 
-export default removeOrganizationMember;
+export default deleteOrganizationInvite;

@@ -5,7 +5,8 @@ import * as dotenv from 'dotenv';
 import { AuthType } from "../utils/security";
 import inviteUser from "./InviteUser";
 import getOrganizationMembers from "./GetOrganizationMembers";
-import removeOrganizationMember from "./RemoveOrganizationMember";
+import removeOrganizationMember from "./DeleteOrganizationInvite";
+import deleteOrganizationInvite from "./DeleteOrganizationInvite";
 
 let appInsights = require('applicationinsights');
 
@@ -50,8 +51,20 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
   }
 
   if (req.method === "DELETE") {
+    if (req.params.action =="member") {
     await removeOrganizationMember(context, req, decodedToken);
     return;
+    }
+    if (req.params.action =="invite") {
+      await deleteOrganizationInvite(context, req, decodedToken);
+      return;
+    }
+    else{
+      context.res = {
+        status: 400,
+        body: "Invalid request method."
+      };
+    }
   }
 
   context.res = {

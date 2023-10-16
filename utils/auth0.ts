@@ -78,7 +78,7 @@ export const GetOrganizationIvites = async (orgId: string) => {
     return invites;
 }
 
-export const RemoveUserInvite = async (inviteId: string, orgId: string) => {
+export const DeleteUserInvite = async (inviteId: string, orgId: string) => {
     const auth0 = initializeAuth0Client();
     await auth0.organizations.deleteInvitation({
         id: orgId,
