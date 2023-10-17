@@ -1,6 +1,7 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { AuthType } from "../utils/security";
 import { GetOrganizationMembers, InviteUserToOrganization, GetOrganizationIvites } from "../utils/auth0";
+import { getOrgTeamName } from "../utils/orgInfo";
 
 let appInsights = require('applicationinsights');
 
@@ -15,10 +16,10 @@ const inviteUser = async (context: Context, req: HttpRequest, decodedToken: Auth
       return;
     }
 
-    if (!req.body.email || !req.body.teamName) {
+    if (!req.body.email) {
       context.res = {
         status: 400,
-        body: "Email or teamName not found."
+        body: "Email not found."
       };
       return;
     }
@@ -35,8 +36,10 @@ const inviteUser = async (context: Context, req: HttpRequest, decodedToken: Auth
       return;
     }
 
+    const teamName = await getOrgTeamName(orgId);
+
     //Send Invite 
-    await InviteUserToOrganization(orgId, req.body.email, req.body.teamName);
+    await InviteUserToOrganization(orgId, req.body.email, teamName);
 
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;
