@@ -40,3 +40,28 @@ export const getOrgTeamName = async (orgId: string) => {
     const org = orgs[0];
     return org.orgDisplayName;
 }
+
+export const renameOrg = async (orgId: string, newTeamName: string) => {
+    const container = await getDatabaseContainer("Organizations");
+    const querySpec = {
+        query: "SELECT * FROM c WHERE c.orgId = @orgId",
+        parameters: [
+            {
+                name: "@orgId",
+                value: orgId
+            }
+        ]
+    };
+
+    // Get the user
+    const { resources: orgs } = await container.items
+        .query(querySpec)
+        .fetchAll();
+    if (!orgs || orgs.length === 0) {
+        return null;
+    }
+    const org = orgs[0];
+    org.orgDisplayName = newTeamName;
+    await container.items.upsert(org);
+    return org;
+}

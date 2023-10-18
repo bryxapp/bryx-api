@@ -97,6 +97,19 @@ export const RemoveUserFromOrganization = async (userId: string, orgId: string) 
     );
 }
 
+export const RenameOrganization = async (orgId: string, newTeamName: string) => {
+    const auth0 = initializeAuth0Client();
+    const name = await getName(newTeamName);
+    await auth0.organizations.update({
+        id: orgId,
+    },
+        {
+            name: name,
+            display_name: newTeamName
+        }
+    );
+}
+
 
 const getName = async (teamName: string) => {
     //remove whitespace

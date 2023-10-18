@@ -7,6 +7,7 @@ import inviteUser from "./InviteUser";
 import getOrganizationMembers from "./GetOrganizationMembers";
 import removeOrganizationMember from "./DeleteOrganizationInvite";
 import deleteOrganizationInvite from "./DeleteOrganizationInvite";
+import renameOrganization from "./RenameOrganization";
 
 let appInsights = require('applicationinsights');
 
@@ -34,13 +35,6 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     return;
   }
 
-  if (req.method === "POST") {
-    if (req.params.action =="invite") {
-      await inviteUser(context, req, decodedToken);
-      return;
-    }
-  }
-
   if (req.method === "GET") {
     if (req.params.action =="members") {
       await getOrganizationMembers(context, req, decodedToken);
@@ -48,6 +42,20 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     }
     await getOrgById(context, req, decodedToken);
     return;
+  }
+
+  if (req.method === "POST") {
+    if (req.params.action =="invite") {
+      await inviteUser(context, req, decodedToken);
+      return;
+    }
+  }
+
+  if(req.method === "PUT"){
+    if(req.params.action =="rename"){
+      await renameOrganization(context, req, decodedToken);
+      return;
+    }
   }
 
   if (req.method === "DELETE") {
@@ -58,12 +66,6 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     if (req.params.action =="invite") {
       await deleteOrganizationInvite(context, req, decodedToken);
       return;
-    }
-    else{
-      context.res = {
-        status: 400,
-        body: "Invalid request method."
-      };
     }
   }
 

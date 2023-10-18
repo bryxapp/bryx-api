@@ -39,7 +39,7 @@ const inviteUser = async (context: Context, req: HttpRequest, decodedToken: Auth
     const teamName = await getOrgTeamName(orgId);
 
     //Send Invite 
-    await InviteUserToOrganization(orgId, req.body.email, teamName);
+    await InviteUserToOrganization(req.body.email,orgId, teamName);
 
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;
