@@ -121,3 +121,45 @@ export const clearOrgSubscription = async (orgId: string) => {
     org.subscription = OrgSubscriptionNames.EXPIRED;
     await container.items.upsert(org);
 }
+
+export const getUserInfo = async (userId: string) => {
+    const container = await getDatabaseContainer("Users");
+    let querySpec = {
+        query: "SELECT * FROM c WHERE c.userId = @userId",
+        parameters: [
+            {
+                name: "@userId",
+                value: userId
+            }
+        ]
+    };
+    const { resources: users } = await container.items
+        .query(querySpec)
+        .fetchAll();
+    if (users.length === 0) {
+        throw new Error("User not found");
+    }
+    const user = users[0];
+    return user;
+}
+
+export const getOrgInfo = async (orgId: string) => {
+    const container = await getDatabaseContainer("Organizations");
+    let querySpec = {
+        query: "SELECT * FROM c WHERE c.orgId = @orgId",
+        parameters: [
+            {
+                name: "@orgId",
+                value: orgId
+            }
+        ]
+    };
+    const { resources: orgs } = await container.items
+        .query(querySpec)
+        .fetchAll();
+    if (orgs.length === 0) {
+        throw new Error("Organization not found");
+    }
+    const org = orgs[0];
+    return org;
+} 
