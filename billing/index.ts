@@ -36,6 +36,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
       return;
     }
   }
+
   context.res = {
     status: 400,
     body: "Invalid request method."

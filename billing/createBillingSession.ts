@@ -29,7 +29,7 @@ const createBillingSession = async (context: Context, req: HttpRequest, decodedT
     // Create a new billing session
     const session = await stripe.billingPortal.sessions.create({
       customer: stripeCustomerId,
-      return_url: `${req.headers.origin}/billing-portal?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      return_url: `${req.headers.origin}`,
     });
 
     // Log telemetry
