@@ -1,5 +1,6 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
+import { UserSubscriptionNames } from "../utils/userInfo";
 let appInsights = require('applicationinsights');
 
 
@@ -16,7 +17,7 @@ const createUser = async (context: Context, req: HttpRequest): Promise<void> => 
     const newUser = {
       userId: req.body.user.user_id,
       auth0UserId: req.body.user.user_id,
-      subscription: "",
+      subscription: UserSubscriptionNames.STARTER,
       stripeUserId: "",
     }
 
