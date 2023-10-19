@@ -12,7 +12,7 @@ const createTeamCheckoutSession = async (context: Context, req: HttpRequest): Pr
     });
 
     // Validate the request body
-    if (!req.body || !req.body.teamName) {
+    if (!req.body || !req.body.teamName || req.body.email) {
       context.res = {
         status: 400,
         body: "Please pass a valid team name in the request body"
@@ -21,6 +21,7 @@ const createTeamCheckoutSession = async (context: Context, req: HttpRequest): Pr
     }
 
     const teamName = req.body.teamName;
+    const email = req.body.email;
 
     // Create a new checkout session
     const session = await stripe.checkout.sessions.create({
@@ -34,7 +35,8 @@ const createTeamCheckoutSession = async (context: Context, req: HttpRequest): Pr
       cancel_url: `${req.headers.origin}/'team-checkout?canceled=true&session_id={CHECKOUT_SESSION_ID}`,
       metadata: {
         teamName: teamName
-      }
+      },
+      customer_email: email,
     });
 
     // Log telemetry
