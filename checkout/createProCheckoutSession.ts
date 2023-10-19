@@ -11,13 +11,7 @@ const createProCheckoutSession = async (context: Context, req: HttpRequest): Pro
       apiVersion: '2023-08-16',
     });
 
-    if (!req.body || !req.body.email) {
-      context.res = {
-        status: 400,
-        body: "Please pass a valid email in the request body"
-      };
-      return;
-    }
+    const email = req.body.email? req.body.email : "";
 
     // Create a new checkout session
     const session = await stripe.checkout.sessions.create({
@@ -29,7 +23,7 @@ const createProCheckoutSession = async (context: Context, req: HttpRequest): Pro
       automatic_tax: { enabled: true },
       success_url: `${req.headers.origin}/pro-checkout?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.origin}/'pro-checkout?canceled=true&session_id={CHECKOUT_SESSION_ID}`,
-      customer_email: req.body.email,
+      customer_email: email,
     });
 
     // Log telemetry
