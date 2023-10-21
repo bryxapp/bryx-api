@@ -1,7 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import * as dotenv from 'dotenv';
 import Stripe from 'stripe';
-import { checkoutSessionCompleted, subscriptionUpdated, subscriptionDeleted,invoicePaymentFailed } from "./checkoutSessionCompleted";
+import { checkoutSessionCompleted, subscriptionDeleted,invoicePaymentFailed, invoicePaid } from "./checkoutSessionCompleted";
 
 let appInsights = require('applicationinsights');
 
@@ -20,20 +20,20 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
       // Handle the event
       switch (event.type) {
         case 'checkout.session.completed':
-          await checkoutSessionCompleted(stripe,eventData);
-          break;
-        case 'customer.subscription.updated':
-          await subscriptionUpdated(stripe,eventData);
+          const checkoutSession = event.data.object as Stripe.Checkout.Session;
+          await checkoutSessionCompleted(checkoutSession);
           break;
         case 'customer.subscription.deleted':
-          await subscriptionDeleted(stripe,eventData);
+          const subscription = event.data.object as Stripe.Subscription;
+          await subscriptionDeleted(subscription);
           break;
         case 'invoice.paid':
-        case 'invoice.payment_succeeded':
-          await invoicePaymentFailed(stripe,eventData);
+          const invoice = event.data.object as Stripe.Invoice;
+          await invoicePaid(invoice);
           break;
         case 'invoice.payment_failed':
-          await invoicePaymentFailed(stripe,eventData);
+          const invoiceFailed = event.data.object as Stripe.Invoice;
+          await invoicePaymentFailed(invoiceFailed);
           break;
         default:
           console.log(`Unhandled event type ${event.type}`);

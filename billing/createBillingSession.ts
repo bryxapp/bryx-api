@@ -1,7 +1,8 @@
 import { Context, HttpRequest } from "@azure/functions";
 import Stripe from 'stripe';
 import { AuthType } from "../utils/security";
-import { getOrgInfo, getUserInfo } from "../utils/userInfo";
+import { getUserInfo } from "../utils/userInfo";
+import { getOrgInfo } from "../utils/orgInfo";
 
 let appInsights = require('applicationinsights');
 

@@ -1,31 +1,47 @@
 
 import Stripe from 'stripe';
+import { isOrg, isUser } from './util';
 
-export const checkoutSessionCompleted = async (stripe: Stripe, checkoutCompleteObj: Stripe.Event.Data): Promise<void> => {
-    //Update subscription to PRO model if not already
-    console.log("Checkout Session Completed", checkoutCompleteObj);
+export const checkoutSessionCompleted = async (checkoutCompleteSession: Stripe.Checkout.Session): Promise<void> => {
+    await upgradeSubscription(checkoutCompleteSession.customer as string);
+    console.log("Checkout Session Completed Processed", checkoutCompleteSession);
 }
 
-export const subscriptionUpdated = async (stripe: Stripe, subscriptionUpdated: Stripe.Event.Data): Promise<void> => {
-    //Update subscription to PRO model if not already
-    console.log("Subscription Updated", subscriptionUpdated);
+export const subscriptionDeleted = async (subscriptionDeleted: Stripe.Subscription): Promise<void> => {
+    await downgradeSubscription(subscriptionDeleted.customer as string);
+    console.log("Subscription Deleted Processed", subscriptionDeleted);
 }
 
-export const subscriptionDeleted = async (stripe: Stripe, subscriptionDeleted: Stripe.Event.Data): Promise<void> => {
-    // Downgrade subscription to STARTER 
-    console.log("Subscription Deleted", subscriptionDeleted);
-}
-
-export const invoicePaid = async (stripe: Stripe, invoicePaid: Stripe.Event.Data): Promise<void> => {
-    //Update subscription to PRO model if not already
+export const invoicePaid = async (invoicePaid: Stripe.Invoice): Promise<void> => {
+    await upgradeSubscription(invoicePaid.customer as string);
     console.log("Invoice Paid", invoicePaid);
 }
 
-export const invoicePaymentFailed = async (stripe: Stripe, invoicePaymentFailed: Stripe.Event.Data): Promise<void> => {
-    // Downgrade subscription to STARTER 
+export const invoicePaymentFailed = async (invoicePaymentFailed: Stripe.Invoice): Promise<void> => {
+    await downgradeSubscription(invoicePaymentFailed.customer as string);
     console.log("Invoice Payment Failed", invoicePaymentFailed);
 }
 
+const upgradeSubscription = async (stripeCustomerId: string) => {
+    if (isOrg(stripeCustomerId)) {
+        //Update subscription to TEAM model if not already
+    }
+    else if (isUser(stripeCustomerId)) {
+        //Update subscription to PRO model if not already
+    }
+    else {
+        throw new Error("Customer not found");
+    }
+}
 
-
-
+const downgradeSubscription = async (stripeCustomerId: string) => {
+    if (isOrg(stripeCustomerId)) {
+        //Set Org to disabled 
+    }
+    if (isUser(stripeCustomerId)) {
+        // Downgrade subscription to STARTER 
+    }
+    else {
+        throw new Error("Customer not found");
+    }
+}

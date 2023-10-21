@@ -142,24 +142,3 @@ export const getUserInfo = async (userId: string) => {
     const user = users[0];
     return user;
 }
-
-export const getOrgInfo = async (orgId: string) => {
-    const container = await getDatabaseContainer("Organizations");
-    let querySpec = {
-        query: "SELECT * FROM c WHERE c.orgId = @orgId",
-        parameters: [
-            {
-                name: "@orgId",
-                value: orgId
-            }
-        ]
-    };
-    const { resources: orgs } = await container.items
-        .query(querySpec)
-        .fetchAll();
-    if (orgs.length === 0) {
-        throw new Error("Organization not found");
-    }
-    const org = orgs[0];
-    return org;
-} 
