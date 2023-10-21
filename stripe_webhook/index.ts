@@ -1,7 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import * as dotenv from 'dotenv';
 import Stripe from 'stripe';
-import { checkoutSessionCompleted, subscriptionDeleted,invoicePaymentFailed, invoicePaid } from "./checkoutSessionCompleted";
+import { downgradeSubscription, upgradeSubscription } from "./util";
 
 let appInsights = require('applicationinsights');
 
@@ -16,24 +16,27 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     try {
       const sig_header = req.headers['stripe-signature'];
       const event = stripe.webhooks.constructEvent(req.body, sig_header, process.env.STRIPE_WEBHOOK_SECRET);
-      const eventData = event.data;
       // Handle the event
       switch (event.type) {
         case 'checkout.session.completed':
           const checkoutSession = event.data.object as Stripe.Checkout.Session;
-          await checkoutSessionCompleted(checkoutSession);
+          await upgradeSubscription(checkoutSession.customer as string);
+          console.log("Checkout Session Completed Processed", checkoutSession);
           break;
         case 'customer.subscription.deleted':
           const subscription = event.data.object as Stripe.Subscription;
-          await subscriptionDeleted(subscription);
+          await downgradeSubscription(subscription.customer as string);
+          console.log("Subscription Deleted Processed", subscription);
           break;
         case 'invoice.paid':
           const invoice = event.data.object as Stripe.Invoice;
-          await invoicePaid(invoice);
+          await upgradeSubscription(invoice.customer as string);
+          console.log("Invoice Paid", invoice);
           break;
         case 'invoice.payment_failed':
           const invoiceFailed = event.data.object as Stripe.Invoice;
-          await invoicePaymentFailed(invoiceFailed);
+          await downgradeSubscription(invoiceFailed.customer as string);
+          console.log("Invoice Payment Failed", invoiceFailed);
           break;
         default:
           console.log(`Unhandled event type ${event.type}`);

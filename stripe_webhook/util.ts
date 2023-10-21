@@ -1,6 +1,6 @@
 import { getDatabaseContainer } from "../utils/database";
 
-export const isOrg = async (stripeCustomerId:string) => {
+export const getOrgFromStripeId = async (stripeCustomerId: string) => {
     //See if stripeCustomerId is in the Organizations table
     const container = await getDatabaseContainer("Organizations");
     let querySpec = {
@@ -16,12 +16,13 @@ export const isOrg = async (stripeCustomerId:string) => {
         .query(querySpec)
         .fetchAll();
     if (orgs.length === 0) {
-        return false;
+        return null
     }
-    return true;
-} 
+    const org = orgs[0];
+    return org;
+}
 
-export const isUser = async (stripeCustomerId:string) => {
+export const getUserFromStripeId = async (stripeCustomerId: string) => {
     //See if stripeCustomerId is in the Users table
     const container = await getDatabaseContainer("Users");
     let querySpec = {
@@ -37,7 +38,66 @@ export const isUser = async (stripeCustomerId:string) => {
         .query(querySpec)
         .fetchAll();
     if (users.length === 0) {
-        return false;
+        return null
     }
-    return true;
+    const user = users[0];
+    return user;
+}
+
+
+export const upgradeSubscription = async (stripeCustomerId: string) => {
+    const org = await getOrgFromStripeId(stripeCustomerId);
+    if (org) {
+        //Update subscription to TEAM model if not already
+        if (org.subscription === "TEAM") {
+            return;
+        }
+        org.subscription = "TEAM";
+        const container = await getDatabaseContainer("Organizations");
+        await container.items.upsert(org);
+    }
+    else {
+        const user = await getUserFromStripeId(stripeCustomerId);
+        if (user) {
+            //Update subscription to PRO model if not already
+            if (user.subscription === "PRO") {
+                return;
+            }
+            user.subscription = "PRO";
+            const container = await getDatabaseContainer("Users");
+            await container.items.upsert(user);
+        }
+        else {
+            throw new Error("Customer not found");
+        }
+    }
+}
+
+export const downgradeSubscription = async (stripeCustomerId: string) => {
+    const org = await getOrgFromStripeId(stripeCustomerId);
+    if (org) {
+        //Set Org to EXPIRED 
+        const org = await getOrgFromStripeId(stripeCustomerId);
+        if (org.subscription === "EXPIRED") {
+            return;
+        }
+        org.subscription = "EXPIRED";
+        const container = await getDatabaseContainer("Organizations");
+        await container.items.upsert(org);
+    }
+    else {
+        const user = await getUserFromStripeId(stripeCustomerId);
+        if (user) {
+            // Downgrade subscription to STARTER 
+            if (user.subscription === "STARTER") {
+                return;
+            }
+            user.subscription = "STARTER";
+            const container = await getDatabaseContainer("Users");
+            await container.items.upsert(user);
+        }
+        else {
+            throw new Error("Customer not found");
+        }
+    }
 }

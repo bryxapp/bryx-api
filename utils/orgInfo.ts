@@ -85,4 +85,5 @@ export const getOrgInfo = async (orgId: string) => {
     }
     const org = orgs[0];
     return org;
-} 
+}
+
