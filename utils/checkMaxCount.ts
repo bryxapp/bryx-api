@@ -40,6 +40,8 @@ export const getMaxEstimates = (subscription: UserSubscription|OrgSubscription) 
         case UserSubscriptionNames.PRO:
         case OrgSubscriptionNames.TEAM:
             return 250; //"UNLIMITED"
+        case OrgSubscriptionNames.EXPIRED:
+            return 0;
         default:
             return 0;
     }
@@ -53,6 +55,8 @@ export const getMaxEstimateDrafts = (subscription: UserSubscription|OrgSubscript
         case UserSubscriptionNames.PRO:
         case OrgSubscriptionNames.TEAM:
             return 50; //"UNLIMITED"
+        case OrgSubscriptionNames.EXPIRED:
+            return 0;
         default:
             return 0;
     }
@@ -68,6 +72,8 @@ export const getMaxTemplates = (subscription: UserSubscription|OrgSubscription) 
             return 5;
         case OrgSubscriptionNames.TEAM:
             return 20; //"UNLIMITED"
+        case OrgSubscriptionNames.EXPIRED:
+            return 0;
         default:
             return 0;
     }
@@ -81,6 +87,8 @@ export const getMaxUserImages = (subscription: UserSubscription|OrgSubscription)
         case UserSubscriptionNames.PRO:
         case OrgSubscriptionNames.TEAM:
             return 10; //"UNLIMITED"
+        case OrgSubscriptionNames.EXPIRED:
+            return 0;
         default:
             return 0;
     }
