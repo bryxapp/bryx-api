@@ -5,7 +5,7 @@ import * as dotenv from 'dotenv';
 import { AuthType } from "../utils/security";
 import inviteUser from "./InviteUser";
 import getOrganizationMembers from "./GetOrganizationMembers";
-import removeOrganizationMember from "./DeleteOrganizationInvite";
+import removeOrganizationMember from "./RemoveOrganizationMember";
 import deleteOrganizationInvite from "./DeleteOrganizationInvite";
 import renameOrganization from "./RenameOrganization";
 
