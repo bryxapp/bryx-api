@@ -13,6 +13,8 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: '2023-08-16',
     });
+    // Create a new telemetry client
+    const telemetryClient = appInsights.defaultClient;
     try {
       const sig_header = req.headers['stripe-signature'];
       const event = stripe.webhooks.constructEvent(req.body, sig_header, process.env.STRIPE_WEBHOOK_SECRET);
@@ -21,22 +23,54 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         case 'checkout.session.completed':
           const checkoutSession = event.data.object as Stripe.Checkout.Session;
           await upgradeSubscription(checkoutSession.customer as string);
-          console.log("Checkout Session Completed Processed", checkoutSession);
+          telemetryClient.trackEvent({
+            name: "UpgradeSubscription",
+            properties: {
+              userId: checkoutSession.customer as string,
+              subscriptionId: checkoutSession.subscription as string,
+              event: checkoutSession,
+              api: "Stripe",
+            }
+          });
           break;
-        case 'customer.subscription.deleted':
-          const subscription = event.data.object as Stripe.Subscription;
-          await downgradeSubscription(subscription.customer as string);
-          console.log("Subscription Deleted Processed", subscription);
+        case 'customer.subscription.created':
+          const subscriptionCreated = event.data.object as Stripe.Subscription;
+          await upgradeSubscription(subscriptionCreated.customer as string);
+          telemetryClient.trackEvent({
+            name: "UpgradeSubscription",
+            properties: {
+              userId: subscriptionCreated.customer as string,
+              subscriptionId: subscriptionCreated.id,
+              event: subscriptionCreated,
+              api: "Stripe",
+            }
+          });
           break;
         case 'invoice.paid':
           const invoice = event.data.object as Stripe.Invoice;
           await upgradeSubscription(invoice.customer as string);
-          console.log("Invoice Paid", invoice);
+          telemetryClient.trackEvent({
+            name: "UpgradeSubscription",
+            properties: {
+              userId: invoice.customer as string,
+              subscriptionId: invoice.subscription as string,
+              event: invoice,
+              api: "Stripe",
+            }
+          });
           break;
-        case 'invoice.payment_failed':
-          const invoiceFailed = event.data.object as Stripe.Invoice;
-          await downgradeSubscription(invoiceFailed.customer as string);
-          console.log("Invoice Payment Failed", invoiceFailed);
+        case 'customer.subscription.deleted':
+          const subscription = event.data.object as Stripe.Subscription;
+          await downgradeSubscription(subscription.customer as string);
+          telemetryClient.trackEvent({
+            name: "DowngradeSubscription",
+            properties: {
+              userId: subscription.customer as string,
+              subscriptionId: subscription.id,
+              event: subscription,
+              api: "Stripe",
+            }
+          });
           break;
         default:
           console.log(`Unhandled event type ${event.type}`);
