@@ -8,6 +8,7 @@ import { verifyToken } from "../utils/security";
 import { AuthType } from "../utils/security";
 
 import * as dotenv from 'dotenv';
+import createEstimatePDF from "./createPDF";
 let appInsights = require('applicationinsights');
 
 dotenv.config();
@@ -19,7 +20,11 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     let handler;
     switch (req.method) {
         case 'POST':
-            handler = createEstimate;
+            if (req.params.estimateId && req.params.estimateId === "pdf") {
+                handler = createEstimatePDF;
+            } else {
+                handler = createEstimate;
+            }
             break;
         case 'GET':
             if (req.params.estimateId && req.params.estimateId === "templates") {

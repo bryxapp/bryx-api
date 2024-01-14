@@ -1,7 +1,5 @@
 import { Context, HttpRequest } from "@azure/functions";
-import { uploadPdf } from "../utils/blobstorage";
 import { getDatabaseContainer } from "../utils/database";
-import { createPDF } from "../utils/pdf";
 import { AuthType } from "../utils/security";
 
 import { checkMaxCounts, getMaxEstimates } from "../utils/checkMaxCount";
@@ -36,20 +34,6 @@ const createEstimate = async (context: Context, req: HttpRequest, decodedToken: 
     newEstimate.userId = decodedToken.sub;
     newEstimate.orgId = decodedToken.org_id ? decodedToken.org_id : null;
     newEstimate.status = "active";
-
-    const estimateHeight = newEstimate.estimatePDFHeight ? newEstimate.estimatePDFHeight : 792;
-    const estimateWidth = newEstimate.estimatePDFWidth ? newEstimate.estimatePDFWidth : 612;
-
-    // convert estimateImgObj to a pdf and store it in blob storage
-    const estimatePdf = createPDF(newEstimate.estimateImgObj, estimateHeight, estimateWidth);
-
-    const blobUrl = uploadPdf(estimatePdf, newEstimate.estimateName);
-
-    // Add the blob url to the estimate object
-    newEstimate.estimatePdfUrl = blobUrl;
-
-    //Delete the estimateImgObj from the estimate object
-    delete newEstimate.estimateImgObj;
 
     // Get the database
     const container = await getDatabaseContainer("Estimates");
