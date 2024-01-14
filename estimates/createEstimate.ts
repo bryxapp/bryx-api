@@ -23,7 +23,7 @@ const createEstimate = async (context: Context, req: HttpRequest, decodedToken: 
 
     const newEstimate = req.body;
     // Validate there is a body and the body contains fields user,templateId,estimateName, and estimateImgObj
-    if (!newEstimate || !newEstimate.templateId || !newEstimate.estimateName || !newEstimate.estimateImgObj) {
+    if (!newEstimate || !newEstimate.templateId || !newEstimate.estimateName || newEstimate.estimateCanvas) {
       context.res = {
         status: 400,
         body: "Please pass a valid estimate object in the request body"
