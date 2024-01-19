@@ -2,12 +2,11 @@ import { Context, HttpRequest } from "@azure/functions";
 import { uploadPdf } from "../utils/blobstorage";
 import { getDatabaseContainer } from "../utils/database";
 import { createPDF } from "../utils/pdf";
-import { AuthType } from "../utils/security";
 
 let appInsights = require('applicationinsights');
 
 
-const createEstimatePDF = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const createEstimatePDF = async (context: Context, req: HttpRequest): Promise<void> => {
     try {
         const newEstimatePdf = req.body;
         // Validate there is a body and the body contains fields user,templateId,estimateName, and estimateImgObj
@@ -50,8 +49,6 @@ const createEstimatePDF = async (context: Context, req: HttpRequest, decodedToke
         telemetryClient.trackEvent({
             name: "CreateEstimatePDF",
             properties: {
-                userId: decodedToken.sub,
-                orgId: decodedToken.org_id,
                 api: "Estimates"
             }
         });
@@ -72,7 +69,7 @@ const createEstimatePDF = async (context: Context, req: HttpRequest, decodedToke
         };
     } catch (error) {
         appInsights.defaultClient.trackException({
-            exception: new Error("Create pdf estimate failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
+            exception: new Error("Create pdf estimate failed"), properties: { api: "Estimates" }
         });
         context.res = {
             status: 500,

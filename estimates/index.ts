@@ -23,6 +23,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         case 'POST':
             if (req.params.estimateId && req.params.estimateId === "pdf") {
                 handler = createEstimatePDF;
+                skipTokenCheck = true; // Skip token check for createEstimatePDF
             } else {
                 handler = createEstimate;
             }
