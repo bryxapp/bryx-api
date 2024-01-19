@@ -1,10 +1,9 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/security";
 
 let appInsights = require('applicationinsights');
 
-const getEstimateById = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const getEstimateById = async (context: Context, req: HttpRequest): Promise<void> => {
   try {
     const EstimateId = req.params.estimateId;
 
@@ -28,10 +27,9 @@ const getEstimateById = async (context: Context, req: HttpRequest, decodedToken:
     telemetryClient.trackEvent({
       name: "GetEstimateById",
       properties: {
-        userId: decodedToken.sub,
-        orgId: decodedToken.org_id,
         api: "Estimates"
-      }    });
+      }
+    });
     // Log a custom metric
     telemetryClient.trackMetric({
       name: "EstimateRetrieved",
@@ -52,7 +50,7 @@ const getEstimateById = async (context: Context, req: HttpRequest, decodedToken:
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Get estimate by id failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
+      exception: new Error("Get estimate by id failed"), properties: { api: "Estimates" }
     });
     context.res = {
       status: 500,
