@@ -23,10 +23,10 @@ const deleteEstimate = async (context: Context, req: HttpRequest, decodedToken: 
 
     //Fetch the estimate
     const { resource: estimate } = await container.item(estimateId, undefined).read();
-
-    //Delete the estimate pdf from blob storage
-    await deletePdf(estimate.estimatePdfUrl);
-
+    if (estimate.estimatePdfUrl) {
+      //Delete the estimate pdf from blob storage
+      await deletePdf(estimate.estimatePdfUrl);
+    }
     //Delete the estimate from Cosmos DB
     await container.item(estimateId, undefined).delete();
 
@@ -39,7 +39,8 @@ const deleteEstimate = async (context: Context, req: HttpRequest, decodedToken: 
         userId: decodedToken.sub,
         orgId: decodedToken.org_id,
         api: "Estimates"
-      }    });
+      }
+    });
     // Log a custom metric
     telemetryClient.trackMetric({
       name: "EstimateDeleted",
