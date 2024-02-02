@@ -14,10 +14,11 @@ const getUserImages = async (context: Context, req: HttpRequest, decodedToken: A
         const container = await getDatabaseContainer("UserImages");
 
         //Create Cosmos DB query for users images
-        let queryString = "SELECT * FROM c WHERE c.orgId = @orgId ORDER BY c._ts DESC";
+        let queryString = "SELECT * FROM c WHERE c.orgId = @orgId";
         if(!orgId) {
             queryString += " AND c.userId = @userId";
         }
+        queryString += " ORDER BY c._ts DESC";
         const querySpec = {
             query: queryString,
             parameters: [
