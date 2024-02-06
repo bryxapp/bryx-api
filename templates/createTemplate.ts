@@ -64,7 +64,7 @@ const createTemplate = async (context: Context, req: HttpRequest, decodedToken: 
       status: 201,
       body: {
         "msg": "Template created successfully.",
-        "id": createdTemplate.id,
+        "template": createdTemplate,
       }
     };
   } catch (error) {
