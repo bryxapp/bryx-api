@@ -2,7 +2,7 @@ import { Context, HttpRequest } from "@azure/functions";
 import Stripe from 'stripe';
 
 let appInsights = require('applicationinsights');
-const proPriceId = 'price_1NypfzEjO3JKZRm1Wj1BdyDz';
+const proPriceId = 'price_1P09ZNEjO3JKZRm1hxRNcvY2';
 
 const createProCheckoutSession = async (context: Context, req: HttpRequest): Promise<void> => {
   try {
