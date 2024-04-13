@@ -24,7 +24,7 @@ const createEstimateDraft = async (context: Context, req: HttpRequest, decodedTo
 
     // Validate there is a body and the body contains fields user,templateId,estimateName, and estimateImgObj
 
-    if (!newEstimateDraft || !newEstimateDraft.templateId || !newEstimateDraft.estimateName || !newEstimateDraft.filledFields) {
+    if (!newEstimateDraft || !newEstimateDraft.templateId || !newEstimateDraft.estimateName || !newEstimateDraft.formInputs) {
       context.res = {
         status: 400,
         body: "Please pass a valid estimate draft object in the request body"
