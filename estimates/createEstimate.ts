@@ -23,8 +23,8 @@ function validateEstimate(newEstimate) {
     if (!newEstimate.canvasDesign) {
       missingFields.push('canvasDesign');
     }
-    if (!newEstimate.fieldValues) {
-      missingFields.push('fieldValues');
+    if (!newEstimate.formInputs) {
+      missingFields.push('formInputs');
     }
   }
 

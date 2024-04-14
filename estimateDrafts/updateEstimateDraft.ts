@@ -21,8 +21,8 @@ function validateEstimate(newEstimate) {
         if (!newEstimate.canvasDesign) {
             missingFields.push('canvasDesign');
         }
-        if (!newEstimate.fieldValues) {
-            missingFields.push('fieldValues');
+        if (!newEstimate.formInputs) {
+            missingFields.push('formInputs');
         }
     }
     // If there are any missing fields, return a detailed error message
