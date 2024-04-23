@@ -76,6 +76,7 @@ const createEstimate = async (context: Context, req: HttpRequest, decodedToken: 
     newEstimate.userId = decodedToken.sub;
     newEstimate.orgId = decodedToken.org_id ? decodedToken.org_id : null;
     newEstimate.status = "active";
+    newEstimate.createdDate = new Date().toISOString();
 
     // Get the database
     const container = await getDatabaseContainer("Estimates");

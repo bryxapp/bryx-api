@@ -1,7 +1,6 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
 import { AuthType } from "../utils/security";
-
 import { checkMaxCounts, getMaxEstimates } from "../utils/checkMaxCount";
 let appInsights = require('applicationinsights');
 
@@ -12,9 +11,10 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
     const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 10;
     const pageNumber = req.query.pageNumber ? parseInt(req.query.pageNumber) : 1;
     const skipCount = (pageNumber - 1) * pageSize;
-
     const searchTerm = req.query.searchTerm ? req.query.searchTerm : '';
     const templateId = req.query.templateId ? req.query.templateId : '';
+    const startDate = req.query.startDate ? new Date(req.query.startDate).toISOString() : null;
+    const endDate = req.query.endDate ? new Date(req.query.endDate).toISOString() : null;
 
     // Get the database
     const container = await getDatabaseContainer("Estimates");
@@ -30,36 +30,23 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
     if (templateId !== '') {
       queryString += " AND c.templateId = @templateId";
     }
+    if (startDate && endDate) {
+      queryString += " AND c.createdDate BETWEEN @startDate AND @endDate";
+    }
     queryString += " ORDER BY c._ts DESC OFFSET @skipCount LIMIT @pageSize";
 
     // Get estimates with paging
     const querySpec = {
       query: queryString,
       parameters: [
-        {
-          name: "@orgId",
-          value: orgId
-        },
-        {
-          name: "@userId",
-          value: userId
-        },
-        {
-          name: "@skipCount",
-          value: skipCount
-        },
-        {
-          name: "@pageSize",
-          value: pageSize
-        },
-        {
-          name: "@searchTerm",
-          value: searchTerm
-        },
-        {
-          name: "@templateId",
-          value: templateId
-        }
+        { name: "@orgId", value: orgId },
+        { name: "@userId", value: userId },
+        { name: "@skipCount", value: skipCount },
+        { name: "@pageSize", value: pageSize },
+        { name: "@searchTerm", value: searchTerm },
+        { name: "@templateId", value: templateId },
+        { name: "@startDate", value: startDate },
+        { name: "@endDate", value: endDate }
       ]
     };
 
@@ -93,7 +80,8 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Get all estimates failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
+      exception: new Error("Get all estimates failed"),
+      properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
     });
     context.res = {
       status: 500,
