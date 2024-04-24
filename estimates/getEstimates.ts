@@ -13,8 +13,8 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
     const skipCount = (pageNumber - 1) * pageSize;
     const searchTerm = req.query.searchTerm ? req.query.searchTerm : '';
     const templateId = req.query.templateId ? req.query.templateId : '';
-    const startDate = req.query.startDate ? req.query.startDate : '';
-    const endDate = req.query.endDate ? req.query.endDate : '';
+    const startDate = req.query.startDate ?  new Date(req.query.startDate).toISOString() : '';
+    const endDate = req.query.endDate ? new Date(req.query.endDate).toISOString() : '';
 
     // Get the database
     const container = await getDatabaseContainer("Estimates");
@@ -31,7 +31,7 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
       queryString += " AND c.templateId = @templateId";
     }
     if (startDate && endDate) {
-      queryString += " AND c.createdDate BETWEEN @startDate AND @endDate";
+      queryString += " AND c.createdDate >= @startDate AND c.createdDate <= @endDate";
     }
     queryString += " ORDER BY c._ts DESC OFFSET @skipCount LIMIT @pageSize";
 
@@ -49,6 +49,8 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
         { name: "@endDate", value: endDate }
       ]
     };
+
+    console.log(querySpec);
 
     // Fetch the estimates
     const { resources: fetchedEstimates } = await container.items.query(querySpec).fetchAll();
