@@ -13,8 +13,8 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
     const skipCount = (pageNumber - 1) * pageSize;
     const searchTerm = req.query.searchTerm ? req.query.searchTerm : '';
     const templateId = req.query.templateId ? req.query.templateId : '';
-    const startDate = req.query.startDate ? new Date(req.query.startDate).toISOString() : null;
-    const endDate = req.query.endDate ? new Date(req.query.endDate).toISOString() : null;
+    const startDate = req.query.startDate ? req.query.startDate : '';
+    const endDate = req.query.endDate ? req.query.endDate : '';
 
     // Get the database
     const container = await getDatabaseContainer("Estimates");
