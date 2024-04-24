@@ -6,6 +6,7 @@ import { verifyToken } from "../utils/security";
 import * as dotenv from 'dotenv';
 import { AuthType } from "../utils/security";
 import deleteUserSub from "./deleteUserSub";
+import getOrganizationsForUser from "./getOrganizationsForUser";
 
 let appInsights = require('applicationinsights');
 
@@ -23,7 +24,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     return;
   }
 
-  if(req.method === "DELETE") {
+  if (req.method === "DELETE") {
     await deleteUserSub(context, req);
     return;
   }
@@ -46,6 +47,11 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
     if (!decodedToken) {
       context.res = { status: 401 };
+      return;
+    }
+
+    if (req.params.userId && req.params.userId === "organizations") {
+      await getOrganizationsForUser(context, req, decodedToken);
       return;
     }
 

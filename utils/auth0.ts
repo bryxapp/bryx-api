@@ -120,3 +120,13 @@ const getName = async (teamName: string) => {
     teamName = teamName.toLowerCase();
     return teamName;
 }
+
+
+export const GetOrganizationsForUser = async (userId: string) => {
+    const auth0 = initializeAuth0Client();
+    const organizations = await auth0.users.getUserOrganizations({
+        id: userId,
+    });
+    return organizations;
+}
+
