@@ -20,11 +20,8 @@ function validateEstimate(newEstimate) {
     if (!newEstimate.estimateName) {
       missingFields.push('estimateName');
     }
-    if (!newEstimate.canvasDesign) {
-      missingFields.push('canvasDesign');
-    }
-    if (!newEstimate.formInputs) {
-      missingFields.push('formInputs');
+    if (!newEstimate.estimateImgObj) {
+      missingFields.push('estimateImgObj');
     }
   }
 

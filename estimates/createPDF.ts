@@ -10,7 +10,7 @@ const createEstimatePDF = async (context: Context, req: HttpRequest): Promise<vo
     try {
         const newEstimatePdf = req.body;
         // Validate there is a body and the body contains fields user,templateId,estimateName, and estimateImgObj
-        if (!newEstimatePdf || !newEstimatePdf.estimateId || !newEstimatePdf.estimateImgObj) {
+        if (!newEstimatePdf || !newEstimatePdf.estimateId) {
             context.res = {
                 status: 400,
                 body: "Please pass a valid estimate pdf creation object in the request body"
@@ -33,7 +33,7 @@ const createEstimatePDF = async (context: Context, req: HttpRequest): Promise<vo
         const estimateWidth = newEstimatePdf.estimatePDFWidth ? newEstimatePdf.estimatePDFWidth : 612;
 
         // convert estimateImgObj to a pdf and store it in blob storage
-        const estimatePdf = createPDF(newEstimatePdf.estimateImgObj, estimateHeight, estimateWidth);
+        const estimatePdf = createPDF(estimate.estimateImgObj, estimateHeight, estimateWidth);
 
         const blobUrl = uploadPdf(estimatePdf, estimate.estimateName);
 
