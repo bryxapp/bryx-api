@@ -69,6 +69,7 @@ const updateEstimateDraft = async (context: Context, req: HttpRequest, decodedTo
         updatedEstimateDraftData.userId = decodedToken.sub;
         updatedEstimateDraftData.orgId = decodedToken.org_id ? decodedToken.org_id : null;
         updatedEstimateDraftData.status = "active";
+        updatedEstimateDraftData.createdDate = new Date().toISOString();
 
         // Get the template from the database
         const container = await getDatabaseContainer("EstimateDrafts");
