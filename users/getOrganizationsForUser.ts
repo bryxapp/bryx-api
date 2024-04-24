@@ -8,7 +8,7 @@ const getOrganizationsForUser = async (context: Context, req: HttpRequest, decod
     try {
         const userId = decodedToken.sub;
 
-        const organizations = GetOrganizationsForUser(userId);
+        const organizations = await GetOrganizationsForUser(userId);
 
         // Create a new telemetry client
         const telemetryClient = appInsights.defaultClient;
