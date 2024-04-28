@@ -34,8 +34,8 @@ export const deletePdf = async (estimatePdfUrl: string) => {
 }
 
 
-export const uploadImage = async (file: multipart.ParsedFile) => {
-    const allowedMimeTypes = ["image/png", "image/jpeg"];
+export const uploadImage = async (file: multipart.ParsedFile, blobContainer:string) => {
+    const allowedMimeTypes = ["image/png", "image/jpeg", "image/svg"];
     const maxSize = 20 * 1024 * 1024; // 20MB
 
     if (!allowedMimeTypes.includes(file.type)) {
@@ -50,7 +50,7 @@ export const uploadImage = async (file: multipart.ParsedFile) => {
     const blobServiceClient = BlobServiceClient.fromConnectionString(
         process.env.AZURE_STORAGE_CONNECTION_STRING
     );
-    const containerClient = blobServiceClient.getContainerClient("user-images-container");
+    const containerClient = blobServiceClient.getContainerClient(blobContainer);
 
     const imageName = `image-${new Date().getTime()}`;
     const { data } = file;
@@ -71,11 +71,11 @@ export const uploadImage = async (file: multipart.ParsedFile) => {
 
 
 
-export const deleteImageBlob = async (imageUrl: string) => {
+export const deleteImageBlob = async (imageUrl: string, blobContainer:string) => {
     // Delete the PDF from blob storage
     const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
 
-    const containerClient = blobServiceClient.getContainerClient("user-images-container");
+    const containerClient = blobServiceClient.getContainerClient(blobContainer);
 
     let blobName = decodeURI(imageUrl.split("/").pop());
     blobName = blobName.replace(/%20/g, " ");

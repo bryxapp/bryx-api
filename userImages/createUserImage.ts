@@ -45,7 +45,7 @@ const createUserImage = async (context: Context, req: HttpRequest, decodedToken:
         const file = parts[0];
         const fileName = file.filename;
         const mimeType = file.type;
-        const imageBlobUrl = await uploadImage(file);
+        const imageBlobUrl = await uploadImage(file,"user-images-container");
 
         // Create a DB record of the new image
         const container = await getDatabaseContainer("UserImages");

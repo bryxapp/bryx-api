@@ -25,7 +25,7 @@ const deleteImage = async (context: Context, req: HttpRequest, decodedToken: Aut
         const { resource: image } = await container.item(imageId, undefined).read();
 
         //Delete the image blob from blob storage
-        await deleteImageBlob(image.imageBlobUrl);
+        await deleteImageBlob(image.imageBlobUrl, "user-images-container");
 
         //Delete the image from Cosmos DB
         await container.item(imageId, undefined).delete();
