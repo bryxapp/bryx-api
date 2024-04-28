@@ -64,15 +64,17 @@ export const updateOrg = async (orgId: string, newTeamName?: string, primaryColo
     if (newTeamName) {
         org.orgDisplayName = newTeamName;
     }
+    let branding = org.branding || {};
     if (primaryColor) {
-        org.primaryColor = primaryColor;
+        branding.primaryColor = primaryColor;
     }
     if (secondaryColor) {
-        org.secondaryColor = secondaryColor;
+        branding.secondaryColor = secondaryColor;
     }
     if (logoUrl) {
-        org.logoUrl = logoUrl;
+        branding.logoUrl = logoUrl;
     }
+    org.branding = branding;
     await container.items.upsert(org);
     return org;
 }
