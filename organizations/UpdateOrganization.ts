@@ -54,7 +54,9 @@ const updateOrganization = async (context: Context, req: HttpRequest, decodedTok
 
       // Delete the old logo
       try{
-        await deleteImageBlob(org.logoUrl, "organization-logos-container");
+        if(org.logoUrl){
+          await deleteImageBlob(org.logoUrl, "organization-logos-container");
+        }
       }
       catch (error) {
         appInsights.defaultClient.trackException({
