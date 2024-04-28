@@ -66,7 +66,7 @@ const updateOrganization = async (context: Context, req: HttpRequest, decodedTok
     }
 
     //Update Auth0 Org Name
-    await UpdateOrganization(orgId, fields["newTeamName"], fields["primaryColor"], fields["secondaryColor"], imageBlobUrl);
+    await UpdateOrganization(orgId, fields["newTeamName"], fields["primaryColor"], imageBlobUrl);
 
     //Update Bryx DB Org Name
     await updateOrg(orgId, fields["newTeamName"], fields["primaryColor"], fields["secondaryColor"], imageBlobUrl);

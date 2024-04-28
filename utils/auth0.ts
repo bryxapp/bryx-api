@@ -97,7 +97,7 @@ export const RemoveUserFromOrganization = async (userId: string, orgId: string) 
     );
 }
 
-export const UpdateOrganization = async (orgId: string, newTeamName?: string, primaryColor?: string, secondaryColor?: string, logoUrl?: string) => {
+export const UpdateOrganization = async (orgId: string, newTeamName?: string, primaryColor?: string, logoUrl?: string) => {
     const auth0 = initializeAuth0Client();
     const orgUpdates = {};
     if (newTeamName) {
@@ -108,13 +108,6 @@ export const UpdateOrganization = async (orgId: string, newTeamName?: string, pr
         orgUpdates['branding'] = {
             colors: {
                 primary: primaryColor
-            }
-        }
-    }
-    if (secondaryColor) {
-        orgUpdates['branding'] = {
-            colors: {
-                page_background: secondaryColor
             }
         }
     }
