@@ -12,11 +12,11 @@ const updateOrganization = async (context: Context, req: HttpRequest, decodedTok
   try {
     if (!req.headers["content-type"] || !req.headers["content-type"].startsWith("multipart/form-data")) {
       context.res = {
-          status: 400,
-          body: "Invalid Content-Type"
+        status: 400,
+        body: "Invalid Content-Type"
       };
       return;
-  }
+    }
     const orgId = decodedToken.org_id;
     if (!orgId) {
       context.res = {
@@ -26,13 +26,20 @@ const updateOrganization = async (context: Context, req: HttpRequest, decodedTok
       return;
     }
 
-    if (!req.body.newTeamName || !req.body.primaryColor || !req.body.secondaryColor || !req.body.newLogo === true) {
-      context.res = {
-        status: 400,
-        body: "Please pass a valid newTeamName, primaryColor, secondaryColor, or logo in the request body"
-      };
-      return;
-    }
+    const boundary = multipart.getBoundary(req.headers["content-type"]);
+    const parts = multipart.Parse(Buffer.from(req.body), boundary);
+
+    // Extract fields from parts
+    let fields = {};
+    parts.forEach(part => {
+      if (part.filename) {
+        // This is the file part
+        req.body.logo = part;
+      } else {
+        // Other form fields
+        fields[part.name] = part.data.toString();
+      }
+    });
 
     const org = await getOrganizationById(orgId);
     if (!org) {
@@ -42,19 +49,17 @@ const updateOrganization = async (context: Context, req: HttpRequest, decodedTok
       };
       return;
     }
+    let imageBlobUrl = '';
 
     if (req.body.newLogo === true) {
-      const boundary = multipart.getBoundary(req.headers["content-type"]);
-      const parts = multipart.Parse(Buffer.from(req.body), boundary);
-      const file = parts[0];
+      const file = fields["logo"];
       const fileName = file.filename;
       const mimeType = file.type;
-      const imageBlobUrl = await uploadImage(file,"organization-logos-container");
-      req.body.logoUrl = imageBlobUrl;
+      imageBlobUrl = await uploadImage(file, "organization-logos-container");
 
       // Delete the old logo
-      try{
-        if(org.logoUrl){
+      try {
+        if (org.logoUrl) {
           await deleteImageBlob(org.logoUrl, "organization-logos-container");
         }
       }
@@ -71,10 +76,10 @@ const updateOrganization = async (context: Context, req: HttpRequest, decodedTok
     }
 
     //Update Auth0 Org Name
-    await UpdateOrganization(orgId, req.body.newTeamName, req.body.primaryColor, req.body.secondaryColor, req.body.logoUrl);
+    await UpdateOrganization(orgId, fields["newTeamName"], fields["primaryColor"], fields["secondaryColor"], imageBlobUrl);
 
     //Update Bryx DB Org Name
-    await updateOrg(orgId, req.body.newTeamName, req.body.primaryColor, req.body.secondaryColor, req.body.logoUrl);
+    await updateOrg(orgId, fields["newTeamName"], fields["primaryColor"], fields["secondaryColor"], imageBlobUrl);
 
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;
