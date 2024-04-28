@@ -7,7 +7,7 @@ import inviteUser from "./InviteUser";
 import getOrganizationMembers from "./GetOrganizationMembers";
 import removeOrganizationMember from "./RemoveOrganizationMember";
 import deleteOrganizationInvite from "./DeleteOrganizationInvite";
-import renameOrganization from "./RenameOrganization";
+import updateOrganization from "./UpdateOrganization";
 
 let appInsights = require('applicationinsights');
 
@@ -52,10 +52,8 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
   }
 
   if(req.method === "PUT"){
-    if(req.params.action =="rename"){
-      await renameOrganization(context, req, decodedToken);
+      await updateOrganization(context, req, decodedToken);
       return;
-    }
   }
 
   if (req.method === "DELETE") {

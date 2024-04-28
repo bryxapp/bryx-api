@@ -1,11 +1,11 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { AuthType } from "../utils/security";
-import { RenameOrganization } from "../utils/auth0";
-import { renameOrg } from "../utils/orgInfo";
+import { UpdateOrganization } from "../utils/auth0";
+import { updateOrg } from "../utils/orgInfo";
 
 let appInsights = require('applicationinsights');
 
-const renameOrganization = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const updateOrganization = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
   try {
     const orgId = decodedToken.org_id;
     if (!orgId) {
@@ -16,25 +16,25 @@ const renameOrganization = async (context: Context, req: HttpRequest, decodedTok
       return;
     }
 
-    if (!req.body.newTeamName) {
+    if (!req.body.newTeamName || !req.body.primaryColor || !req.body.secondaryColor || !req.body.logoUrl) {
       context.res = {
         status: 400,
-        body: "New Team Name not found."
+        body: "Please pass a valid newTeamName, primaryColor, secondaryColor, or logoUrl in the request body"
       };
       return;
     }
 
     //Update Auth0 Org Name
-    await RenameOrganization(orgId, req.body.newTeamName);
+    await UpdateOrganization(orgId, req.body.newTeamName, req.body.primaryColor, req.body.secondaryColor, req.body.logoUrl);
 
     //Update Bryx DB Org Name
-    await renameOrg(orgId, req.body.newTeamName);
+    await updateOrg(orgId, req.body.newTeamName);
 
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;
     //Log the event 
     telemetryClient.trackEvent({
-      name: "RenameOrg",
+      name: "UpdateOrg",
       properties: {
         userId: decodedToken.sub,
         api: "Organizations"
@@ -43,7 +43,7 @@ const renameOrganization = async (context: Context, req: HttpRequest, decodedTok
 
     // Log a custom metric
     telemetryClient.trackMetric({
-      name: "OrgRenamed",
+      name: "OrgUpdated",
       value: 1
     });
 
@@ -51,7 +51,7 @@ const renameOrganization = async (context: Context, req: HttpRequest, decodedTok
     context.res = {
       status: 200,
       body: {
-        message: "Org Renames",
+        message: "Org Updates",
         teamName: req.body.newTeamName
       }
     };
@@ -66,4 +66,4 @@ const renameOrganization = async (context: Context, req: HttpRequest, decodedTok
   }
 };
 
-export default renameOrganization;
+export default updateOrganization;

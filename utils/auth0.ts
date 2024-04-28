@@ -97,16 +97,36 @@ export const RemoveUserFromOrganization = async (userId: string, orgId: string) 
     );
 }
 
-export const RenameOrganization = async (orgId: string, newTeamName: string) => {
+export const UpdateOrganization = async (orgId: string, newTeamName?: string, primaryColor?: string, secondaryColor?: string, logoUrl?: string) => {
     const auth0 = initializeAuth0Client();
-    const name = await getName(newTeamName);
+    const orgUpdates = {};
+    if (newTeamName) {
+        orgUpdates['display_name'] = newTeamName;
+        orgUpdates['name'] = await getName(newTeamName);
+    }
+    if (primaryColor) {
+        orgUpdates['branding'] = {
+            colors: {
+                primary: primaryColor
+            }
+        }
+    }
+    if (secondaryColor) {
+        orgUpdates['branding'] = {
+            colors: {
+                page_background: secondaryColor
+            }
+        }
+    }
+    if (logoUrl) {
+        orgUpdates['branding'] = {
+            logo_url: logoUrl
+        }
+    }
     await auth0.organizations.update({
         id: orgId,
     },
-        {
-            name: name,
-            display_name: newTeamName
-        }
+        orgUpdates
     );
 }
 

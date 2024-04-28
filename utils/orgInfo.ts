@@ -41,7 +41,7 @@ export const getOrgTeamName = async (orgId: string) => {
     return org.orgDisplayName;
 }
 
-export const renameOrg = async (orgId: string, newTeamName: string) => {
+export const updateOrg = async (orgId: string, newTeamName?: string, primaryColor?: string, secondaryColor?: string, logoUrl?: string) => {
     const container = await getDatabaseContainer("Organizations");
     const querySpec = {
         query: "SELECT * FROM c WHERE c.orgId = @orgId",
@@ -61,7 +61,18 @@ export const renameOrg = async (orgId: string, newTeamName: string) => {
         return null;
     }
     const org = orgs[0];
-    org.orgDisplayName = newTeamName;
+    if (newTeamName) {
+        org.orgDisplayName = newTeamName;
+    }
+    if (primaryColor) {
+        org.primaryColor = primaryColor;
+    }
+    if (secondaryColor) {
+        org.secondaryColor = secondaryColor;
+    }
+    if (logoUrl) {
+        org.logoUrl = logoUrl;
+    }
     await container.items.upsert(org);
     return org;
 }
