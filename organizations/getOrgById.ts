@@ -2,6 +2,7 @@ import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
 import { AuthType } from "../utils/security";
 import { getOrganization } from "../utils/auth0";
+import { getOrganizationById } from "./orgUtils";
 
 let appInsights = require('applicationinsights');
 
@@ -16,30 +17,15 @@ const getOrgById = async (context: Context, req: HttpRequest, decodedToken: Auth
       return;
     }
     // Get the database
-    const container = await getDatabaseContainer("Organizations");
 
-    const querySpec = {
-      query: "SELECT * FROM c WHERE c.orgId = @orgId",
-      parameters: [
-        {
-          name: "@orgId",
-          value: orgId
-        }
-      ]
-    };
-
-    // Get the user
-    const { resources: orgs } = await container.items
-      .query(querySpec)
-      .fetchAll();
-    if (!orgs || orgs.length === 0) {
+    const org = await getOrganizationById(orgId);
+    if (!org) {
       context.res = {
         status: 404,
         body: "Org not found."
       };
       return;
     }
-    const org = orgs[0];
 
     //Get Auth0 Org
     const auth0Org = await getOrganization(orgId);
