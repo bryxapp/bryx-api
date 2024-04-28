@@ -29,12 +29,12 @@ const updateOrganization = async (context: Context, req: HttpRequest, decodedTok
     const boundary = multipart.getBoundary(req.headers["content-type"]);
     const parts = multipart.Parse(Buffer.from(req.body), boundary);
 
-    // Extract fields from parts
     let fields = {};
+    let file;
     parts.forEach(part => {
       if (part.filename) {
         // This is the file part
-        req.body.logo = part;
+        file = part;
       } else {
         // Other form fields
         fields[part.name] = part.data.toString();
@@ -51,10 +51,7 @@ const updateOrganization = async (context: Context, req: HttpRequest, decodedTok
     }
     let imageBlobUrl = '';
 
-    if (req.body.newLogo === true) {
-      const file = fields["logo"];
-      const fileName = file.filename;
-      const mimeType = file.type;
+    if (file) {
       imageBlobUrl = await uploadImage(file, "organization-logos-container");
 
       // Delete the old logo
