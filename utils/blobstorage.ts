@@ -1,5 +1,13 @@
 import { BlobServiceClient } from "@azure/storage-blob";
-import * as multipart from "parse-multipart";
+import parseMultipartFormData from "@anzp/azure-function-multipart";
+
+export type ParsedFile = {
+    name: string;
+    bufferFile: Buffer;
+    filename: string;
+    encoding: string;
+    mimeType: string;
+  };
 
 export const uploadPdf = (pdf: Uint8Array, estimateName: string) => {
     // Upload the PDF to blob storage
@@ -34,15 +42,15 @@ export const deletePdf = async (estimatePdfUrl: string) => {
 }
 
 
-export const uploadImage = async (file: multipart.ParsedFile, blobContainer:string) => {
-    const allowedMimeTypes = ["image/png", "image/jpeg", "image/svg"];
+export const uploadImage = async (file: ParsedFile, blobContainer:string) => {
+    const allowedMimeTypes = ["image/png", "image/jpeg", "image/svg+xml"];
     const maxSize = 20 * 1024 * 1024; // 20MB
 
-    if (!allowedMimeTypes.includes(file.type)) {
+    if (!allowedMimeTypes.includes(file.mimeType)) {
         throw new Error("Invalid file type");
     }
 
-    if (file.data.length > maxSize) {
+    if (file.bufferFile.length > maxSize) {
         throw new Error("File size too large");
     }
 
@@ -53,12 +61,12 @@ export const uploadImage = async (file: multipart.ParsedFile, blobContainer:stri
     const containerClient = blobServiceClient.getContainerClient(blobContainer);
 
     const imageName = `image-${new Date().getTime()}`;
-    const { data } = file;
+    const data = file.bufferFile;
     const blockBlobClient = containerClient.getBlockBlobClient(imageName);
 
     try {
         const uploadOptions = {
-            blobHTTPHeaders: { blobContentType: file.type },
+            blobHTTPHeaders: { blobContentType: file.mimeType },
             timeoutInSeconds: 25
         };
         await blockBlobClient.upload(data, data.length, uploadOptions);

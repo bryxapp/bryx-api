@@ -2,9 +2,9 @@ import { Context, HttpRequest } from "@azure/functions";
 import { AuthType } from "../utils/security";
 import { UpdateOrganization } from "../utils/auth0";
 import { updateOrg } from "../utils/orgInfo";
-import * as multipart from "parse-multipart";
 import { deleteImageBlob, uploadImage } from "../utils/blobstorage";
 import { getOrganizationById } from "./orgUtils";
+import parseMultipartFormData from "@anzp/azure-function-multipart";
 
 let appInsights = require('applicationinsights');
 
@@ -26,20 +26,13 @@ const updateOrganization = async (context: Context, req: HttpRequest, decodedTok
       return;
     }
 
-    const boundary = multipart.getBoundary(req.headers["content-type"]);
-    const parts = multipart.Parse(Buffer.from(req.body), boundary);
+    const { fields: multiPartFormFields, files: multiPartFormFiles } = await parseMultipartFormData(req);
+    let file = multiPartFormFiles.length > 0 ? multiPartFormFiles[0] : null
+    const fields = multiPartFormFields.reduce((acc, field) => {
+      acc[field.name] = field.value;
+      return acc;
+    }, {});
 
-    let fields = {};
-    let file;
-    parts.forEach(part => {
-      if (part.filename) {
-        // This is the file part
-        file = part;
-      } else {
-        // Other form fields
-        fields[part.name] = part.data.toString();
-      }
-    });
 
     const org = await getOrganizationById(orgId);
     if (!org) {

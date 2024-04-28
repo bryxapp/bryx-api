@@ -2,8 +2,8 @@ import { Context, HttpRequest } from "@azure/functions";
 import { uploadImage } from "../utils/blobstorage";
 import { getDatabaseContainer } from "../utils/database";
 import { checkMaxCounts, getMaxUserImages } from "../utils/checkMaxCount";
-import * as multipart from "parse-multipart";
 import { AuthType } from "../utils/security";
+import parseMultipartFormData from "@anzp/azure-function-multipart";
 
 let appInsights = require("applicationinsights");
 
@@ -37,14 +37,13 @@ const createUserImage = async (context: Context, req: HttpRequest, decodedToken:
     }
 
     try {
-        const boundary = multipart.getBoundary(req.headers["content-type"]);
-        const parts = multipart.Parse(Buffer.from(req.body), boundary);
+        const {files} = await parseMultipartFormData(req);
 
         const userId = decodedToken.sub;
         const orgId = decodedToken.org_id? decodedToken.org_id : null;
-        const file = parts[0];
+        const file = files[0];
         const fileName = file.filename;
-        const mimeType = file.type;
+        const mimeType = file.mimeType;
         const imageBlobUrl = await uploadImage(file,"user-images-container");
 
         // Create a DB record of the new image
