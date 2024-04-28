@@ -25,7 +25,7 @@ const getEstimateById = async (context: Context, req: HttpRequest): Promise<void
     if (estimate.orgId) {
       const org = await getOrganizationById(estimate.orgId);
       if (org) {
-        estimate.orgDisplayName = org.displayName;
+        estimate.orgDisplayName = org.orgDisplayName;
         estimate.branding = org.branding;
       }
     }
