@@ -2,6 +2,7 @@ import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
 import { deletePdf } from "../utils/blobstorage";
 import { AuthType } from "../utils/security";
+import { deleteEstimateComments } from "./estimateUtils";
 
 let appInsights = require('applicationinsights');
 
@@ -27,6 +28,8 @@ const deleteEstimate = async (context: Context, req: HttpRequest, decodedToken: 
       //Delete the estimate pdf from blob storage
       await deletePdf(estimate.estimatePdfUrl);
     }
+    //Delete the comments 
+    await deleteEstimateComments(estimateId);
     //Delete the estimate from Cosmos DB
     await container.item(estimateId, undefined).delete();
 
