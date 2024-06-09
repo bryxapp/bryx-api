@@ -2,7 +2,7 @@ import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import createEstimateComment from "./createEstimateComment";
 import getEstimateComments from "./getEstimateComments";
 import deleteEstimateComment from "./deleteEstimateComment";
-import { verifyToken } from "../utils/security";
+import { verifyAuth0Token } from "../utils/security";
 import { AuthType } from "../utils/security";
 
 import * as dotenv from 'dotenv';
@@ -26,7 +26,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
     let decodedToken: AuthType;
     try {
-        decodedToken = verifyToken(token);
+        decodedToken = verifyAuth0Token(token);
     } catch (error) {
         context.res = { status: 401 };
         return;

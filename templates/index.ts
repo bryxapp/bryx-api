@@ -4,7 +4,7 @@ import getAllTemplates from "./getAllTemplates";
 import getTemplateById from "./getTemplateById";
 import updateTemplate from "./updateTemplate";
 import deleteTemplate from "./deleteTemplate";
-import { verifyToken } from "../utils/security";
+import { verifyAuth0Token } from "../utils/security";
 import * as dotenv from 'dotenv';
 import { AuthType } from "../utils/security";
 
@@ -30,7 +30,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
   let decodedToken: AuthType;
   try {
-    decodedToken = verifyToken(token);
+    decodedToken = verifyAuth0Token(token);
   } catch (error) {
     context.res = { status: 401 };
     return;

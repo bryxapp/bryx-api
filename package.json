@@ -21,6 +21,7 @@
     "dotenv": "^16.0.3",
     "jsonwebtoken": "^9.0.1",
     "jspdf": "^2.5.1",
+    "jwks-rsa": "^3.1.0",
     "stripe": "^13.9.0",
     "ts-node": "^10.9.1"
   },

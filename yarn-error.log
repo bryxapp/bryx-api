@@ -1,20 +1,20 @@
 Arguments: 
-  /usr/local/bin/node /usr/local/bin/yarn remove parse-multipart
+  /Users/bryanthomas/.nvm/versions/node/v22.2.0/bin/node /usr/local/bin/yarn add jwks-rsa
 
 PATH: 
-  /opt/homebrew/bin:/opt/homebrew/sbin:/Library/Frameworks/Python.framework/Versions/3.11/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/opt/homebrew/bin:/opt/homebrew/sbin:/Library/Frameworks/Python.framework/Versions/3.11/bin:/Users/bryanthomas/.cargo/bin
+  /Users/bryanthomas/.nvm/versions/node/v22.2.0/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Library/Frameworks/Python.framework/Versions/3.11/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/Users/bryanthomas/.cargo/bin
 
 Yarn version: 
   1.22.19
 
 Node version: 
-  18.12.1
+  22.2.0
 
 Platform: 
-  darwin x64
+  darwin arm64
 
 Trace: 
-  Error: EACCES: permission denied, unlink '/Users/bryanthomas/Code/bryx-api/node_modules/@jest/core/node_modules/jest-config/LICENSE'
+  Error: EACCES: permission denied, mkdir '/Users/bryanthomas/Code/bryx-api/node_modules/jsonwebtoken/node_modules/ms'
 
 npm manifest: 
   {

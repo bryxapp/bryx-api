@@ -1,6 +1,6 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import getOrgById from "./getOrgById";
-import { verifyToken } from "../utils/security";
+import { verifyAuth0Token } from "../utils/security";
 import * as dotenv from 'dotenv';
 import { AuthType } from "../utils/security";
 import inviteUser from "./InviteUser";
@@ -24,7 +24,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
   let decodedToken: AuthType;
   try {
-    decodedToken = verifyToken(token);
+    decodedToken = verifyAuth0Token(token);
   } catch (error) {
     context.res = { status: 401 };
     return;

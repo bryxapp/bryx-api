@@ -4,7 +4,7 @@ import getUserImages from "./getUserImages";
 import deleteImage from "./deleteUserImage";
 import * as dotenv from "dotenv";
 import getUserImageById from "./getUserImageById";
-import { verifyToken } from "../utils/security";
+import { verifyAuth0Token } from "../utils/security";
 import { AuthType } from "../utils/security";
 
 let appInsights = require("applicationinsights");
@@ -27,7 +27,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
   let decodedToken: AuthType;
   try {
-    decodedToken = verifyToken(token);
+    decodedToken = verifyAuth0Token(token);
   } catch (error) {
     context.res = { status: 401 };
     return;
