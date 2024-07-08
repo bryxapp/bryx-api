@@ -1,6 +1,6 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded } from "../utils/security";
 
 import { checkMaxCounts, getMaxEstimates } from "../utils/checkMaxCount";
 let appInsights = require('applicationinsights');
@@ -34,16 +34,16 @@ function validateEstimate(newEstimate) {
   return null;
 }
 
-const createEstimate = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const createEstimate = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
   try {
 
-    if (await checkMaxCounts(decodedToken.sub, decodedToken.org_id, "Estimates", getMaxEstimates)) {
+    if (await checkMaxCounts(decodedToken.sub, decodedToken.org_code, "Estimates", getMaxEstimates)) {
       context.res = {
         status: 400,
         body: "You have reached the maximum number of estimates for your subscription. Please upgrade your subscription to create more estimates."
       };
       appInsights.defaultClient.trackException({
-        exception: new Error("Max Estimates Reached"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
+        exception: new Error("Max Estimates Reached"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Estimates" }
       });
 
       return;
@@ -71,7 +71,7 @@ const createEstimate = async (context: Context, req: HttpRequest, decodedToken: 
 
 
     newEstimate.userId = decodedToken.sub;
-    newEstimate.orgId = decodedToken.org_id ? decodedToken.org_id : null;
+    newEstimate.orgId = decodedToken.org_code ? decodedToken.org_code : null;
     newEstimate.status = "active";
     newEstimate.createdDate = new Date().toISOString();
 
@@ -88,7 +88,7 @@ const createEstimate = async (context: Context, req: HttpRequest, decodedToken: 
       name: "CreateEstimate",
       properties: {
         userId: decodedToken.sub,
-        orgId: decodedToken.org_id,
+        orgId: decodedToken.org_code,
         api: "Estimates"
       }
     });
@@ -109,7 +109,7 @@ const createEstimate = async (context: Context, req: HttpRequest, decodedToken: 
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Create estimate failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
+      exception: new Error("Create estimate failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Estimates" }
     });
     context.res = {
       status: 500,

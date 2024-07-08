@@ -1,11 +1,11 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
 import { deleteImageBlob } from "../utils/blobstorage";
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded } from "../utils/security";
 
 let appInsights = require("applicationinsights");
 
-const deleteImage = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const deleteImage = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
     try {
         const imageId = req.params.imageId;
 
@@ -37,7 +37,7 @@ const deleteImage = async (context: Context, req: HttpRequest, decodedToken: Aut
             name: "DeleteUserImage",
             properties: {
         userId: decodedToken.sub,
-        orgId: decodedToken.org_id,
+        orgId: decodedToken.org_code,
         api: "Images"
       }        });
         // Log a custom metric
@@ -54,7 +54,7 @@ const deleteImage = async (context: Context, req: HttpRequest, decodedToken: Aut
 
     } catch (error) {
         appInsights.defaultClient.trackException({
-            exception: new Error("Delete user image failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Images" }
+            exception: new Error("Delete user image failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Images" }
         });
         context.res = {
             status: 500,

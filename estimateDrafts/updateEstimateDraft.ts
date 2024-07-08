@@ -1,6 +1,6 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded } from "../utils/security";
 
 let appInsights = require('applicationinsights');
 
@@ -35,7 +35,7 @@ function validateEstimate(newEstimate) {
 }
 
 
-const updateEstimateDraft = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const updateEstimateDraft = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
 
     try {
         const estimateDraftId = req.params.estimateDraftId;
@@ -67,7 +67,7 @@ const updateEstimateDraft = async (context: Context, req: HttpRequest, decodedTo
         }
 
         updatedEstimateDraftData.userId = decodedToken.sub;
-        updatedEstimateDraftData.orgId = decodedToken.org_id ? decodedToken.org_id : null;
+        updatedEstimateDraftData.orgId = decodedToken.org_code ? decodedToken.org_code : null;
         updatedEstimateDraftData.status = "active";
         updatedEstimateDraftData.createdDate = new Date().toISOString();
 
@@ -102,7 +102,7 @@ const updateEstimateDraft = async (context: Context, req: HttpRequest, decodedTo
             name: "UpdateEstimateDraft",
             properties: {
                 userId: decodedToken.sub,
-                orgId: decodedToken.org_id,
+                orgId: decodedToken.org_code,
                 api: "Estimates"
             }
         });
@@ -119,7 +119,7 @@ const updateEstimateDraft = async (context: Context, req: HttpRequest, decodedTo
         };
     } catch (error) {
         appInsights.defaultClient.trackException({
-            exception: new Error("Update estimate draft failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
+            exception: new Error("Update estimate draft failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Estimates" }
         });
         context.res = {
             status: 500,

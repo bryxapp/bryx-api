@@ -1,14 +1,14 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded } from "../utils/security";
 import { checkMaxCounts, getMaxUserImages } from "../utils/checkMaxCount";
 
 let appInsights = require("applicationinsights");
 
-const getUserImages = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const getUserImages = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
     try {
         const userId = decodedToken.sub;
-        const orgId = decodedToken.org_id ? decodedToken.org_id : null;
+        const orgId = decodedToken.org_code ? decodedToken.org_code : null;
 
         //Get the database connection
         const container = await getDatabaseContainer("UserImages");
@@ -43,7 +43,7 @@ const getUserImages = async (context: Context, req: HttpRequest, decodedToken: A
             name: "GetAllUserImages",
             properties: {
         userId: decodedToken.sub,
-        orgId: decodedToken.org_id,
+        orgId: decodedToken.org_code,
         api: "Images"
       }        });
         // Log a custom metric
@@ -52,7 +52,7 @@ const getUserImages = async (context: Context, req: HttpRequest, decodedToken: A
             value: 1
         });
 
-        const maxUserImagesReached = await checkMaxCounts(decodedToken.sub, decodedToken.org_id, "UserImages", getMaxUserImages);
+        const maxUserImagesReached = await checkMaxCounts(decodedToken.sub, decodedToken.org_code, "UserImages", getMaxUserImages);
 
         context.res = {
             status: 200,
@@ -64,7 +64,7 @@ const getUserImages = async (context: Context, req: HttpRequest, decodedToken: A
 
     } catch (error) {
         appInsights.defaultClient.trackException({
-            exception: new Error("Get all user images failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Images" }
+            exception: new Error("Get all user images failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Images" }
         });
         context.res = {
             status: 500,

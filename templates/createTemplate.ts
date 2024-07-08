@@ -1,28 +1,28 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded } from "../utils/security";
 
 import { checkMaxCounts, getMaxTemplates } from "../utils/checkMaxCount";
 let appInsights = require('applicationinsights');
 
 
-const createTemplate = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const createTemplate = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
   try {
     // Check if the user has reached the maximum number of templates
-    if (await checkMaxCounts(decodedToken.sub, decodedToken.org_id, "Templates", getMaxTemplates)) {
+    if (await checkMaxCounts(decodedToken.sub, decodedToken.org_code, "Templates", getMaxTemplates)) {
       context.res = {
         status: 400,
         body: "You have reached the maximum number of templates. Please upgrade your subscription to create more templates."
       };
       appInsights.defaultClient.trackException({
-        exception: new Error("Max Templates Reached"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Templates" }
+        exception: new Error("Max Templates Reached"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Templates" }
       });
       return;
     }
 
     const newTemplate = req.body;
     newTemplate.userId = decodedToken.sub;
-    newTemplate.orgId = decodedToken.org_id? decodedToken.org_id : null;
+    newTemplate.orgId = decodedToken.org_code? decodedToken.org_code : null;
     newTemplate.status = "active";
 
     // Validate the template data
@@ -50,7 +50,7 @@ const createTemplate = async (context: Context, req: HttpRequest, decodedToken: 
          userId: decodedToken.sub,
           templateId: createdTemplate.id,
           api: "Templates",
-          orgId: decodedToken.org_id }
+          orgId: decodedToken.org_code }
     });
     // Log a custom metric
     telemetryClient.trackMetric({
@@ -69,7 +69,7 @@ const createTemplate = async (context: Context, req: HttpRequest, decodedToken: 
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Template creation failed"), properties: { userId: decodedToken.sub, templateId: req.params.templateId, api: "Templates", orgId: decodedToken.org_id }
+      exception: new Error("Template creation failed"), properties: { userId: decodedToken.sub, templateId: req.params.templateId, api: "Templates", orgId: decodedToken.org_code }
     });
     context.res = {
       status: 500,

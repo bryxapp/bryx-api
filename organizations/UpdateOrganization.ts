@@ -1,6 +1,6 @@
 import { Context, HttpRequest } from "@azure/functions";
-import { AuthType } from "../utils/security";
-import { UpdateOrganization } from "../utils/auth0";
+import { KindeTokenDecoded } from "../utils/security";
+import { UpdateOrganization } from "../utils/kinde-x";
 import { updateOrg } from "../utils/orgInfo";
 import { deleteImageBlob, uploadImage } from "../utils/blobstorage";
 import { getOrganizationById } from "./orgUtils";
@@ -8,7 +8,7 @@ import parseMultipartFormData from "@anzp/azure-function-multipart";
 
 let appInsights = require('applicationinsights');
 
-const updateOrganization = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const updateOrganization = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
   try {
     if (!req.headers["content-type"] || !req.headers["content-type"].startsWith("multipart/form-data")) {
       context.res = {
@@ -17,7 +17,7 @@ const updateOrganization = async (context: Context, req: HttpRequest, decodedTok
       };
       return;
     }
-    const orgId = decodedToken.org_id;
+    const orgId = decodedToken.org_code;
     if (!orgId) {
       context.res = {
         status: 404,
@@ -55,7 +55,7 @@ const updateOrganization = async (context: Context, req: HttpRequest, decodedTok
       }
       catch (error) {
         appInsights.defaultClient.trackException({
-          exception: new Error("Delete Logo Failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Organizations" }
+          exception: new Error("Delete Logo Failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Organizations" }
         });
         context.res = {
           status: 500,
@@ -98,7 +98,7 @@ const updateOrganization = async (context: Context, req: HttpRequest, decodedTok
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Renaming Org Failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Organizations" }
+      exception: new Error("Renaming Org Failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Organizations" }
     });
     context.res = {
       status: 500,

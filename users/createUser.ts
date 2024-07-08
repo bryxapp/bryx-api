@@ -1,22 +1,16 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
 import { UserSubscriptionNames } from "../utils/userInfo";
+import { KindeTokenDecoded } from "../utils/security";
 let appInsights = require('applicationinsights');
+import { v4 as uuidv4 } from 'uuid';
 
 
-const createUser = async (context: Context, req: HttpRequest): Promise<void> => {
+const createUser = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
   try {
-    // Validate there is a body and the body contains fields user,templateId,estimateName, and estimateImgObj
-    if (!req.body || !req.body.user || !req.body.user.user_id) {
-      context.res = {
-        status: 400,
-        body: "Please pass a valid user object in the request body"
-      };
-      return;
-    }
     const newUser = {
-      userId: req.body.user.user_id,
-      auth0UserId: req.body.user.user_id,
+      userId: uuidv4(), //generate a guid for userId
+      kindeUserId: decodedToken.sub,
       subscription: UserSubscriptionNames.STARTER,
       stripeUserId: "",
     }

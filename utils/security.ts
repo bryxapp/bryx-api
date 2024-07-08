@@ -1,42 +1,18 @@
-import { get } from 'http';
 import * as jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
 
-///Create an interface type for authentication object
-export interface AuthType {
-    sub: string;
-    org_id?: string;
-}
-
-
-export const verifyAuth0Token = (tokenString: string) => {
-    try {
-
-        const [tokenScheme, tokenValue] = tokenString.split(' ');
-
-        if (!tokenScheme || tokenScheme !== 'Bearer' || !tokenValue) {
-            return null;
-        }
-
-        const key = process.env.AUTH0_PUBLIC_KEY.replace(/\\n/g, '\n');
-        const decodedToken = jwt.verify(tokenValue, key);
-
-        return decodedToken as AuthType;
-
-    } catch (error) {
-        console.error('Token verification failed:', error);
-
-        throw error;
-    }
-};
 
 export interface KindeTokenDecoded {
     sub: string;  // Subject (usually the user ID)
     iss: string;  // Issuer
-    aud: string;  // Audience
+    aud: string[];  // Audience
     exp: number;  // Expiration time (Unix timestamp)
     iat: number;  // Issued at time (Unix timestamp)
-    [key: string]: any;  // Additional claims can be added as needed
+    azp: string;  // Authorized party
+    jti: string;  // JWT ID
+    org_code: string;  // Organization code
+    permissions: string[];  // Permissions
+    scp: string[];  // Scopes
 }
 
 const client = jwksClient({

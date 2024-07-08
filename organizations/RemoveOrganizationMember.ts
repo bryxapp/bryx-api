@@ -1,12 +1,12 @@
 import { Context, HttpRequest } from "@azure/functions";
-import { AuthType } from "../utils/security";
-import { RemoveUserFromOrganization } from "../utils/auth0";
+import { KindeTokenDecoded } from "../utils/security";
+import { RemoveUserFromOrganization } from "../utils/kinde-x";
 
 let appInsights = require('applicationinsights');
 
-const removeOrganizationMember = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const removeOrganizationMember = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
   try {
-    const orgId = decodedToken.org_id;
+    const orgId = decodedToken.org_code;
     if (!orgId) {
       context.res = {
         status: 404,
@@ -47,7 +47,7 @@ const removeOrganizationMember = async (context: Context, req: HttpRequest, deco
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Removing Organization Member Failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Organizations" }
+      exception: new Error("Removing Organization Member Failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Organizations" }
     });
     context.res = {
       status: 500,

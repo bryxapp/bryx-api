@@ -1,10 +1,10 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded } from "../utils/security";
 
 let appInsights = require('applicationinsights');
 
-const deleteEstimateDraft = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const deleteEstimateDraft = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
   try {
     const estimateDraftId = req.params.estimateDraftId;
 
@@ -30,7 +30,7 @@ const deleteEstimateDraft = async (context: Context, req: HttpRequest, decodedTo
       name: "DeleteEstimateDraftById",
       properties: {
         userId: decodedToken.sub,
-        orgId: decodedToken.org_id,
+        orgId: decodedToken.org_code,
         api: "Estimates"
       }    });
     // Log a custom metric
@@ -46,7 +46,7 @@ const deleteEstimateDraft = async (context: Context, req: HttpRequest, decodedTo
 
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Delete estimate draft by id failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
+      exception: new Error("Delete estimate draft by id failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Estimates" }
     });
     context.res = {
       status: 500,

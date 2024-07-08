@@ -1,21 +1,21 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded } from "../utils/security";
 
 import { checkMaxCounts, getMaxEstimateDrafts } from "../utils/checkMaxCount";
 let appInsights = require('applicationinsights');
 
 
-const createEstimateDraft = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const createEstimateDraft = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
   try {
 
-    if (await checkMaxCounts(decodedToken.sub, decodedToken.org_id, "EstimateDrafts", getMaxEstimateDrafts)) {
+    if (await checkMaxCounts(decodedToken.sub, decodedToken.org_code, "EstimateDrafts", getMaxEstimateDrafts)) {
       context.res = {
         status: 400,
         body: "You have reached the maximum number of estimate Drafts."
       };
       appInsights.defaultClient.trackException({
-        exception: new Error("Max Estimate Drafts Reached"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
+        exception: new Error("Max Estimate Drafts Reached"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Estimates" }
       });
       return;
     }
@@ -32,7 +32,7 @@ const createEstimateDraft = async (context: Context, req: HttpRequest, decodedTo
       return;
     }
     newEstimateDraft.userId = decodedToken.sub;
-    newEstimateDraft.orgId = decodedToken.org_id ? decodedToken.org_id : null;
+    newEstimateDraft.orgId = decodedToken.org_code ? decodedToken.org_code : null;
     newEstimateDraft.status = "active";
     newEstimateDraft.createdDate = new Date().toISOString();
 
@@ -49,7 +49,7 @@ const createEstimateDraft = async (context: Context, req: HttpRequest, decodedTo
       name: "CreateEstimateDraft",
       properties: {
         userId: decodedToken.sub,
-        orgId: decodedToken.org_id,
+        orgId: decodedToken.org_code,
         api: "Estimates"
       }
     });
@@ -69,7 +69,7 @@ const createEstimateDraft = async (context: Context, req: HttpRequest, decodedTo
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Create estimate draft failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
+      exception: new Error("Create estimate draft failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Estimates" }
     });
 
     context.res = {

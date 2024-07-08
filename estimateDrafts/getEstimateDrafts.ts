@@ -1,13 +1,13 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded } from "../utils/security";
 import { checkMaxCounts, getMaxEstimateDrafts } from "../utils/checkMaxCount";
 let appInsights = require('applicationinsights');
 
-const getEstimateDrafts = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const getEstimateDrafts = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
   try {
     const userId = decodedToken.sub;
-    const orgId = decodedToken.org_id ? decodedToken.org_id : null;
+    const orgId = decodedToken.org_code ? decodedToken.org_code : null;
 
     const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 10;
     const pageNumber = req.query.pageNumber ? parseInt(req.query.pageNumber) : 1;
@@ -54,7 +54,7 @@ const getEstimateDrafts = async (context: Context, req: HttpRequest, decodedToke
       name: "GetAllEstimateDrafts",
       properties: {
         userId: decodedToken.sub,
-        orgId: decodedToken.org_id,
+        orgId: decodedToken.org_code,
         api: "Estimates"
       }
     });
@@ -63,7 +63,7 @@ const getEstimateDrafts = async (context: Context, req: HttpRequest, decodedToke
       name: "EstimateDraftsRetrieved",
       value: 1
     });
-    const maxDraftsReached = await checkMaxCounts(decodedToken.sub, decodedToken.org_id, "EstimateDrafts", getMaxEstimateDrafts);
+    const maxDraftsReached = await checkMaxCounts(decodedToken.sub, decodedToken.org_code, "EstimateDrafts", getMaxEstimateDrafts);
 
     context.res = {
       status: 200,
@@ -74,7 +74,7 @@ const getEstimateDrafts = async (context: Context, req: HttpRequest, decodedToke
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Get all estimate drafts failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
+      exception: new Error("Get all estimate drafts failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Estimates" }
     });
     context.res = {
       status: 500,
