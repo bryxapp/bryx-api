@@ -1,10 +1,10 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded } from "../utils/security";
 
 let appInsights = require('applicationinsights');
 
-const getUserById = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const getUserById = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
   try {
     const userId = decodedToken.sub;
     // Get the database
@@ -63,7 +63,7 @@ const getUserById = async (context: Context, req: HttpRequest, decodedToken: Aut
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Get user by id failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Users" }
+      exception: new Error("Get user by id failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Users" }
     });
     context.res = {
       status: 500,

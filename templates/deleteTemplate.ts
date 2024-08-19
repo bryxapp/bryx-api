@@ -1,10 +1,10 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded } from "../utils/security";
 
 let appInsights = require('applicationinsights');
 
-const deleteTemplate = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const deleteTemplate = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
   try {
     const templateId = req.params.templateId;
 

@@ -1,10 +1,10 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded } from "../utils/security";
 
 let appInsights = require('applicationinsights');
 
-const updateTemplate = async (context: Context, req: HttpRequest,decodedToken:AuthType): Promise<void> => {
+const updateTemplate = async (context: Context, req: HttpRequest,decodedToken:KindeTokenDecoded): Promise<void> => {
   try {
     const templateId = req.params.templateId;
     const updatedTemplateData = req.body;
@@ -44,7 +44,7 @@ const updateTemplate = async (context: Context, req: HttpRequest,decodedToken:Au
 
     updatedTemplateData.id = templateId;
     updatedTemplateData.userId = userId;
-    updatedTemplateData.orgId = decodedToken.org_id? decodedToken.org_id : null;
+    updatedTemplateData.orgId = decodedToken.org_code? decodedToken.org_code : null;
     updatedTemplateData.status = "active";
     // Update the template in the database
     const { resource: updatedTemplate } = await container.item(templateId).replace(updatedTemplateData);
@@ -54,7 +54,7 @@ const updateTemplate = async (context: Context, req: HttpRequest,decodedToken:Au
         //Log the event 
         telemetryClient.trackEvent({
           name: "UpdateTemplate",
-          properties: { userId: userId, templateId: templateId, api: "Templates", orgId: decodedToken.org_id }
+          properties: { userId: userId, templateId: templateId, api: "Templates", orgId: decodedToken.org_code }
         });
         // Log a custom metric
         telemetryClient.trackMetric({
@@ -72,7 +72,7 @@ const updateTemplate = async (context: Context, req: HttpRequest,decodedToken:Au
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Template update failed"), properties: { userId: decodedToken.sub, templateId: req.params.templateId, api: "Templates", orgId: decodedToken.org_id }
+      exception: new Error("Template update failed"), properties: { userId: decodedToken.sub, templateId: req.params.templateId, api: "Templates", orgId: decodedToken.org_code }
     });
     context.res = {
       status: 500,

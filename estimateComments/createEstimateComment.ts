@@ -1,10 +1,10 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded } from "../utils/security";
 let appInsights = require('applicationinsights');
 
 
-const createEstimateComment = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const createEstimateComment = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
   try {
     const newEstimateComment = req.body;
 
@@ -32,7 +32,7 @@ const createEstimateComment = async (context: Context, req: HttpRequest, decoded
       name: "CreateEstimateComment",
       properties: {
         userId: decodedToken.sub,
-        orgId: decodedToken.org_id,
+        orgId: decodedToken.org_code,
         api: "Estimates"
       }    });
     // Log a custom metric
@@ -52,7 +52,7 @@ const createEstimateComment = async (context: Context, req: HttpRequest, decoded
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Create estimate comment failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
+      exception: new Error("Create estimate comment failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Estimates" }
     });
     context.res = {
       status: 500,

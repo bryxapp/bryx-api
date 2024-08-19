@@ -1,14 +1,14 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/security";
-import { getOrganization } from "../utils/auth0";
+import { KindeTokenDecoded } from "../utils/security";
+import { getOrganization } from "../utils/kinde-x";
 import { getOrganizationById } from "./orgUtils";
 
 let appInsights = require('applicationinsights');
 
-const getOrgById = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const getOrgById = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
   try {
-    const orgId = decodedToken.org_id;
+    const orgId = decodedToken.org_code;
     if (!orgId) {
       context.res = {
         status: 404,
@@ -64,7 +64,7 @@ const getOrgById = async (context: Context, req: HttpRequest, decodedToken: Auth
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Get org by id failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Organizations" }
+      exception: new Error("Get org by id failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Organizations" }
     });
     context.res = {
       status: 500,

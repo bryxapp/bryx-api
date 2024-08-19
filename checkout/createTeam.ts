@@ -1,6 +1,6 @@
 import { Context, HttpRequest } from "@azure/functions";
 import Stripe from 'stripe';
-import { AddUserToOrganization, createAuth0Organization } from "../utils/auth0";
+import { AddUserToOrganization, createAuth0Organization } from "../utils/kinde-x";
 import { createOrg } from "../utils/orgInfo";
 let appInsights = require('applicationinsights');
 

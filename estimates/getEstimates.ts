@@ -1,13 +1,13 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded } from "../utils/security";
 import { checkMaxCounts, getMaxEstimates } from "../utils/checkMaxCount";
 let appInsights = require('applicationinsights');
 
-const getEstimates = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const getEstimates = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
   try {
     const userId = decodedToken.sub;
-    const orgId = decodedToken.org_id ? decodedToken.org_id : null;
+    const orgId = decodedToken.org_code ? decodedToken.org_code : null;
     const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 10;
     const pageNumber = req.query.pageNumber ? parseInt(req.query.pageNumber) : 1;
     const skipCount = (pageNumber - 1) * pageSize;
@@ -54,7 +54,7 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
 
     // Fetch the estimates
     const { resources: fetchedEstimates } = await container.items.query(querySpec).fetchAll();
-    const maxEstimatesReached = await checkMaxCounts(decodedToken.sub, decodedToken.org_id, "Estimates", getMaxEstimates);
+    const maxEstimatesReached = await checkMaxCounts(decodedToken.sub, decodedToken.org_code, "Estimates", getMaxEstimates);
 
     // Create a new telemetry client
     const telemetryClient = appInsights.defaultClient;
@@ -63,7 +63,7 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
       name: "GetAllEstimates",
       properties: {
         userId: decodedToken.sub,
-        orgId: decodedToken.org_id,
+        orgId: decodedToken.org_code,
         api: "Estimates"
       }
     });
@@ -83,7 +83,7 @@ const getEstimates = async (context: Context, req: HttpRequest, decodedToken: Au
   } catch (error) {
     appInsights.defaultClient.trackException({
       exception: new Error("Get all estimates failed"),
-      properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
+      properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Estimates" }
     });
     context.res = {
       status: 500,

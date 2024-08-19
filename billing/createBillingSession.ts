@@ -1,12 +1,12 @@
 import { Context, HttpRequest } from "@azure/functions";
 import Stripe from 'stripe';
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded } from "../utils/security";
 import { getUserInfo } from "../utils/userInfo";
 import { getOrgInfo } from "../utils/orgInfo";
 
 let appInsights = require('applicationinsights');
 
-const createBillingSession = async (context: Context, req: HttpRequest, decodedToken:AuthType): Promise<void> => {
+const createBillingSession = async (context: Context, req: HttpRequest, decodedToken:KindeTokenDecoded): Promise<void> => {
   try {
     // Initialize the Stripe client
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -14,7 +14,7 @@ const createBillingSession = async (context: Context, req: HttpRequest, decodedT
     });
 
     const userId = decodedToken.sub;
-    const orgId = decodedToken.org_id ? decodedToken.org_id : null;
+    const orgId = decodedToken.org_code ? decodedToken.org_code : null;
     let stripeCustomerId = null;
     if(orgId) {
       //Get Org Stripe Customer ID

@@ -1,13 +1,13 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { getDatabaseContainer } from "../utils/database";
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded } from "../utils/security";
 
 let appInsights = require('applicationinsights');
 
-const getTemplatesUsed = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const getTemplatesUsed = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
   try {
     const userId = decodedToken.sub;
-    const orgId = decodedToken.org_id ? decodedToken.org_id : null;
+    const orgId = decodedToken.org_code ? decodedToken.org_code : null;
 
     // Get the database
     const container = await getDatabaseContainer("Estimates");
@@ -44,7 +44,7 @@ const getTemplatesUsed = async (context: Context, req: HttpRequest, decodedToken
       name: "GetTemplatesUsed",
       properties: {
         userId: decodedToken.sub,
-        orgId: decodedToken.org_id,
+        orgId: decodedToken.org_code,
         api: "Estimates"
       }
     });
@@ -60,7 +60,7 @@ const getTemplatesUsed = async (context: Context, req: HttpRequest, decodedToken
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Get templates used failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Estimates" }
+      exception: new Error("Get templates used failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Estimates" }
     });
     context.res = {
       status: 500,

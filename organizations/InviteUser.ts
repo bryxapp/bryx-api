@@ -1,13 +1,13 @@
 import { Context, HttpRequest } from "@azure/functions";
-import { AuthType } from "../utils/security";
-import { GetOrganizationMembers, InviteUserToOrganization, GetOrganizationIvites } from "../utils/auth0";
+import { KindeTokenDecoded } from "../utils/security";
+import { GetOrganizationMembers, InviteUserToOrganization, GetOrganizationIvites } from "../utils/kinde-x";
 import { getOrgTeamName } from "../utils/orgInfo";
 
 let appInsights = require('applicationinsights');
 
-const inviteUser = async (context: Context, req: HttpRequest, decodedToken: AuthType): Promise<void> => {
+const inviteUser = async (context: Context, req: HttpRequest, decodedToken: KindeTokenDecoded): Promise<void> => {
   try {
-    const orgId = decodedToken.org_id;
+    const orgId = decodedToken.org_code;
     if (!orgId) {
       context.res = {
         status: 404,
@@ -67,7 +67,7 @@ const inviteUser = async (context: Context, req: HttpRequest, decodedToken: Auth
     };
   } catch (error) {
     appInsights.defaultClient.trackException({
-      exception: new Error("Inviting User to Org Failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_id, api: "Organizations" }
+      exception: new Error("Inviting User to Org Failed"), properties: { userId: decodedToken.sub, orgId: decodedToken.org_code, api: "Organizations" }
     });
     context.res = {
       status: 500,

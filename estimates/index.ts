@@ -4,8 +4,7 @@ import getEstimates from "./getEstimates";
 import getEstimateById from "./getEstimateById";
 import getTemplatesUsed from "./getTemplatesUsed";
 import deleteEstimate from "./deleteEstimate";
-import { verifyAuth0Token } from "../utils/security";
-import { AuthType } from "../utils/security";
+import { KindeTokenDecoded, verifyKindeToken } from "../utils/security";
 
 import * as dotenv from 'dotenv';
 import createEstimatePDF from "./createPDF";
@@ -47,15 +46,16 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
     // Verify that the request is authenticated, unless skipTokenCheck is true
     if (!skipTokenCheck) {
+
         const token = req.headers.authorization;
         if (!token) {
             context.res = { status: 401 };
             return;
         }
 
-        let decodedToken: AuthType;
+        let decodedToken: KindeTokenDecoded;
         try {
-            decodedToken = verifyAuth0Token(token);
+            decodedToken = await verifyKindeToken(token);
         } catch (error) {
             context.res = { status: 401 };
             return;
@@ -73,6 +73,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
                 status: 400,
                 body: "Invalid request method."
             };
+
         }
     } else {
         // If token check is skipped, call the handler directly without token
